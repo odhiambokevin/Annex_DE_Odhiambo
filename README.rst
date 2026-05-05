@@ -2,8 +2,6 @@
 ANNEX TECHNOLOGIES - Data Engineer Case Study
 #############################################
 
-Yaspi GIS website code.
-
 .. note::
     This is a fictitious case study of a phone company, ABC Phones.
 
