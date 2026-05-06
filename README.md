@@ -30,9 +30,9 @@ data folder/
 ```
 
 ## Setup
-1. Clone the repo using **https://github.com/odhiambokevin/Annex_DE_Odhiambo.git**
+1. Clone the repo using `git clone https://github.com/odhiambokevin/Annex_DE_Odhiambo.git`
 2. Setup a virtual environment to install the python dependencies. UV with python version 3.12.3 is used.
-3. Install the requirements.txt file
-4. Have a .env file that reads the environment variables that facilitate database connection
+3. Install the requirements.txt file. UV is used in this case `uv pip install -r requirements.txt`. To install UV check out this [link]('https://docs.astral.sh/uv/getting-started/installation/')
+4. Have a .env file that reads the environment variables that facilitate database connection.
 
-The BASE_DIR variable is used to set the root folder location using the os module as in scripts/data_profiling.py
+The BASE_DIR variable is used to set the root folder location using the `os module` as in `scripts/data_profiling.py`
