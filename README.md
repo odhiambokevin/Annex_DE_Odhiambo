@@ -1,25 +1,17 @@
-.. image:: https://img.shields.io/github/last-commit/odhiambokevin/bank-fraud-detection-system
-   :alt: GitHub last commit
-   
-#############################################
-ANNEX TECHNOLOGIES - Data Engineer Case Study
-#############################################
+![GitHub last commit](https://img.shields.io/github/last-commit/odhiambokevin/Annex_DE_Odhiambo)
 
-.. note::
-    This is a fictitious case study of a phone company, ABC Phones.
+# ANNEX TECHNOLOGIES - Data Engineer Case Study
 
-============
-Introduction
-============
+> [!Note]
+> This is a fictitious case study of a phone company, ABC Phones.
+
+## Introduction
 ABC Phones offers smartphones to customers through installment-based credit plans and manages these accounts throughout the repayment period. Customers make regular payments toward their outstanding balances, and credit decisions play a critical role in both portfolio performance and customer experience.
 
 While ABC Phones has systems to process payments and manage accounts, their data engineering and analytics infrastructure is still maturing.
 
 This is a scalable codebase that addresses their current challenges.
-
-===========
-Assumptions
-===========
+## Assumptions
 The following assumptions are made for this project.
 1. The Credit Data will always be accompanied by a relevant definitions file to allow the scripts in data_profiling.py to successfully create the 
 resultant tables.
@@ -37,10 +29,8 @@ data folder/
     └── original (original data from source)/
 ```
 
-=====
-Setup
-=====
-1. Clone the repo using ""
+## Setup
+1. Clone the repo using **https://github.com/odhiambokevin/Annex_DE_Odhiambo.git**
 2. Setup a virtual environment to install the python dependencies. UV with python version 3.12.3 is used.
 3. Install the requirements.txt file
 4. Have a .env file that reads the environment variables that facilitate database connection
