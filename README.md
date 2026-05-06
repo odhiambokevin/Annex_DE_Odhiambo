@@ -18,15 +18,16 @@ resultant tables.
 2. There is a "data folder" with the following structure in the root file (Same level as README)
 
 ```
-data folder/
-    ├── staging (copy of original data)/
-    │   ├── credit data folder/
-    │   │   ├── Credit Data - 01-01-2025.csv
-    │   │   └── new-file.txtCredit Data - 01-02-2025.csv
-    │   └── Sales and Customer Data.xlsx
-    ├── README.rst
-    ├── NPS Data.xlsx
-    └── original (original data from source)/
+root folder
+    ├── data folder
+    │   ├── original (original data)
+    │   └── staging (copy of original data)
+    │       ├── NPS Data.xlsx
+    │       ├── Sales and Customer Data.xlsx
+    │       └── credit data folder
+    │           ├── Credit Data - 01-01-2025.csv
+    │           └── Credit Data - 01-02-2025.csv
+    └── README.md
 ```
 
 ## Setup
