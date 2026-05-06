@@ -1,3 +1,6 @@
+.. image:: https://img.shields.io/github/last-commit/odhiambokevin/bank-fraud-detection-system
+   :alt: GitHub last commit
+   
 #############################################
 ANNEX TECHNOLOGIES - Data Engineer Case Study
 #############################################
@@ -22,18 +25,17 @@ The following assumptions are made for this project.
 resultant tables.
 2. There is a "data folder" with the following structure in the root file (Same level as README)
 
-    data folder
-    ├── original (the original data from source)
-    ├── staging (copy of the original)
-    │   ├── Credit Data
+```
+data folder/
+    ├── staging (copy of original data)/
+    │   ├── credit data folder/
     │   │   ├── Credit Data - 01-01-2025.csv
-    │   │   ├── Credit Data - 01-01-2025.csv
-    │   │   ├── Credit Data - 01-01-2025.csv
-    │   │   └── Credit Data - 01-01-2025.csv
-    │   ├── NPS Data.xlsx
+    │   │   └── new-file.txtCredit Data - 01-02-2025.csv
     │   └── Sales and Customer Data.xlsx
-    └── README.md
-    
+    ├── README.rst
+    ├── NPS Data.xlsx
+    └── original (original data from source)/
+```
 
 =====
 Setup
