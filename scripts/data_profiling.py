@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
 def get_database_data():
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
-    
+
     tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
     #tables_ns = ["public.sales", "public.nps", "public.credit"] we can filter specific tables like this to use less memory
     
@@ -97,3 +97,4 @@ if raw_database_df:
     for name, df in raw_database_df.items():
         print(f"\n--- Profiling Summary for: {name} ---")
         print(df.describe())
+        print(df.info())
