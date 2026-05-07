@@ -93,7 +93,7 @@ def get_database_data():
 
 raw_database_df = get_database_data()
 
-# -----------------------DATA CLEANING------------------------------------------------------------------
+# -----------------------DATA PROFILING------------------------------------------------------------------
 
 #statistical overview of our data frames
 if raw_database_df:
@@ -117,8 +117,8 @@ def df_nulls(dataframes):
         
         # Merge into results into a summary table
         null_summary = pd.DataFrame({
-            'Missing Values': no_of_nulls,
-            'Percentage (%)': null_percent.round(2)
+            'Missing Values': no_of_nulls.sort_values(ascending=False),
+            'Percentage (%)': null_percent.round(2).sort_values(ascending=False)
         })
  
         print(null_summary)    
@@ -129,7 +129,7 @@ def df_nulls(dataframes):
 def df_value_counts(dataframes):
     for name, df in dataframes.items():
         print(f"\n{'-'*50}")
-        print(f"Frequency Analysis for {name} table")
+        print(f"Frequency analysis for {name} table")
         print(f"{'-'*50}\n") #
         
         for col_name, col_data in df.items():
@@ -138,4 +138,39 @@ def df_value_counts(dataframes):
                 print(col_data.value_counts().head(10))
             else:
                 print(col_data.value_counts(dropna=False))
-                print(f"{'-'*30}")
+                print(f"{'-'*50}")
+
+#Identifying duplicates
+def identify_duplicates(dataframes):
+    for name, df in dataframes.items():
+        print(f"\n{'-'*50}")
+        print(f"Duplicate analysis for {name} table")
+        print(f"{'-'*50}")
+
+        #Identify entire row contents that are duplicates
+        total_rows = len(df)
+        no_of_duplicate_row = df.duplicated().sum()
+        
+        print(f"Total Rows: {total_rows}")
+        print(f"Entire Duplicate Rows: {no_of_duplicate_row}") #can help to identify ingestion discrepancy in pipeline
+        
+        if no_of_duplicate_row > 0:
+            percentage = (no_of_duplicate_row / total_rows) * 100
+            print(f"{percentage:.2f}% of the data consists of exact duplicates.") #:.2f ensure trailing zeros included
+        
+        #Identify column level duplicated
+        column_summary = []
+        for col in df.columns:
+            no_of_unique = df[col].nunique()
+            is_unique = no_of_unique == total_rows
+            column_summary.append({
+                'Column': col,
+                'Unique Values': no_of_unique,
+                'No Duplicates': total_rows - no_of_unique,
+                'Has Duplicates': not is_unique
+            })
+        
+        #Display summary table
+        column_summary_df = pd.DataFrame(column_summary)
+        print(column_summary_df.to_string(index=False))
+        print(f"{'-'*50}")
