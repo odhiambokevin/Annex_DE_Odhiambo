@@ -35,7 +35,7 @@ def ingest_data():
                 df.to_sql(table_name, engine, if_exists='replace', index=False)
                 print(f"Uploaded: {table_name}")
             else:
-                print(f"{file} is either a directory or not in allowed format")
+                print(f"{file} is either a directory or {file} file is not in allowed format")
                 print(f"...skipping\n")
 
     #processing Credit Data folder by merging all the csv files in there
@@ -94,9 +94,9 @@ def get_database_data():
     finally:
         engine.dispose() #we close all database connections
 
-raw_database_df = get_database_data()
-
 # -----------------------DATA PROFILING------------------------------------------------------------------
+
+raw_database_df = get_database_data()
 
 #statistical overview of our data frames
 if raw_database_df:
@@ -215,8 +215,8 @@ def check_inconsistency(dataframes):
 
 
 if __name__ == "__main__":
-    # pass #uncomment the lines below to run the function calls
-    ingest_data()
+    pass #uncomment the lines below and comment this one to run the function calls
+    # ingest_data()
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)
     # df_value_counts(raw_database_df)
