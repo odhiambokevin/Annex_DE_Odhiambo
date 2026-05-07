@@ -62,16 +62,13 @@ def ingest_data():
     else:
         print("Credit Data folder does not exist")
 
-if __name__ == "__main__":
-    # ingest_data()
-    print("Database upload complete.")
 
 def get_database_data():
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
 
-    # tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
-    #tables_ns = ["public.sales", "public.nps", "public.credit"] we can filter specific tables like this to use less memory
-    tables_ns = ["nps_data"]
+    tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
+    #tables_ns = ["merged_credit_data", "sales",] we can filter specific tables like this to use less memory
+    # tables_ns = ["merged_credit_data"]
     
     dataframes = {} #this will hold our converted tables as data frames
 
@@ -99,8 +96,8 @@ raw_database_df = get_database_data()
 if raw_database_df:
     for name, df in raw_database_df.items():
         print(f"\n--- Profiling Summary for: {name} ---")
-        print(df.describe())
-        print(df.info())
+        # print(df.describe())
+        # print(df.info())
 
 #Missing values Analysis
 def df_nulls(dataframes):
@@ -176,10 +173,10 @@ def identify_duplicates(dataframes):
         print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Asses data inconsistency
-def check_inconsitency(dataframes):
+def check_inconsistency(dataframes):
     for name, df in dataframes.items():
         print(f"\n{'-'*50}")
-        print(f"Data inconsistency analysis")
+        print(f"Data inconsistency analysis for {name} table")
         print(f"{'-'*50}")
 
         for col in df.columns:
@@ -209,3 +206,12 @@ def check_inconsitency(dataframes):
             if zeros > 0:
                 print(f"Zeros: {zeros} rows contain the value 0.")
         print(f"\n{'-'*25} ENDS {'-'*25}")
+
+
+if __name__ == "__main__":
+    pass #uncomment the lines below to run the function calls
+    # ingest_data()
+    # identify_duplicates(raw_database_df)
+    # check_inconsistency(raw_database_df)
+    # df_value_counts(raw_database_df)
+    # df_nulls(raw_database_df)

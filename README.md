@@ -4,6 +4,7 @@
 
 > [!Note]
 > This is a fictitious case study of a phone company, ABC Phones.
+> Fucntion calls are commented out at the end of data_profiling.py file. Uncomment and run as needed.
 > Call the function `ingest_data()` in the `scripts/data_profiling.py` once. Comment it out once database is populated.
 
 ## Introduction
