@@ -123,7 +123,7 @@ def df_nulls(dataframes):
  
         print(null_summary)    
         print(f"\nTotal Rows: {len(df)}")
-        print(f"{'-'*50}")
+        print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Frequency Analysis
 def df_value_counts(dataframes):
@@ -138,7 +138,7 @@ def df_value_counts(dataframes):
                 print(col_data.value_counts().head(10))
             else:
                 print(col_data.value_counts(dropna=False))
-                print(f"{'-'*50}")
+        print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Identifying duplicates
 def identify_duplicates(dataframes):
@@ -173,4 +173,39 @@ def identify_duplicates(dataframes):
         #Display summary table
         column_summary_df = pd.DataFrame(column_summary)
         print(column_summary_df.to_string(index=False))
+        print(f"\n{'-'*25} ENDS {'-'*25}")
+
+#Asses data inconsistency
+def check_inconsitency(dataframes):
+    for name, df in dataframes.items():
+        print(f"\n{'-'*50}")
+        print(f"Data inconsistency analysis")
         print(f"{'-'*50}")
+
+        for col in df.columns:
+            print(f"\nColumn: {col}")
+            
+            #Assess mix of data types
+            types_in_col = df[col].apply(type).unique() #checks for all different data types in a column
+            if len(types_in_col) > 1:
+                print(f"Mixed types: found {len(types_in_col)} types: {types_in_col}")
+
+            #Check for white spaces
+            if df[col].dtype == 'object':
+                whitespace_count = df[col].apply(lambda x: isinstance(x, str) and (x != x.strip())).sum()
+                if whitespace_count > 0:
+                    print(f"White space: {whitespace_count} rows have whitespaces.")
+
+            #checking for outliers in numbers
+            if pd.api.types.is_numeric_dtype(df[col]):
+                mean = df[col].mean()
+                std = df[col].std()
+                outliers = df[(df[col] - mean).abs() > 3 * std][col] #3 standard deviation away needs extra probing
+                if not outliers.empty:
+                    print(f"Outliers: {len(outliers)} potential outliers are 3 stadard dev. away")
+
+            #empty values
+            zeros = (df[col] == 0).sum()
+            if zeros > 0:
+                print(f"Zeros: {zeros} rows contain the value 0.")
+        print(f"\n{'-'*25} ENDS {'-'*25}")
