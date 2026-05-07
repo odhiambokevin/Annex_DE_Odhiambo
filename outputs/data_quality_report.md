@@ -145,8 +145,6 @@ memory usage: 18.5+ MB
 None
 ```
 
-
-
 ## 1. Duplicates
 #### NPS Data
 - This is questionnaire and we are not too conerned with duplicates here.
@@ -182,7 +180,7 @@ Have you ever had your phone lock despite making a payment on t              2  
 ```
 
 #### Sales and Customer Data
-- T
+- 98% of the data have exact row duplicates and this is a concern.
 
 ```bash
 --------------------------------------------------

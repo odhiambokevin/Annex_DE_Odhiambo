@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from decouple import config
 import pandas as pd
-from io import StringIO
 from sqlalchemy import create_engine, inspect
 
 # to create an example subfolder use os.makedirs(BASE_DIR / 'example2', exist_ok=True)
@@ -21,19 +20,23 @@ engine = create_engine(conn_string)
 
 def ingest_data():
     #Sales and Customer data and NPS data files
-    root_files = ['NPS Data.xlsx', 'Sales and Customer Data.xlsx']
-    for file in root_files:
-        file_path = os.path.join(BASE_DIR / 'data' / 'staging' / file)
-                      
-        if os.path.exists(file_path):
-            table_name = file.replace('.xlsx', '').replace('csv', '').replace(' ', '_').replace("-", "_").lower()
-            print(f"Uploading: {table_name}...")           
-            df = pd.read_excel(file_path)
-            df.to_sql(table_name, engine, if_exists='replace', index=False)
-            print(f"Uploaded: {table_name}")
-        else:
-            print("File does not exist")
-
+    files_folder = os.path.join(BASE_DIR / 'data' / 'staging')
+    
+    if os.path.exists(files_folder):
+        for file in os.listdir(files_folder):
+            file_path = os.path.join(files_folder, file)
+            if os.path.isfile(file_path) and file.endswith(('.xlsx', '.xls', '.csv')): #to ignore folder in files_folder
+                table_name = file.replace('.xlsx', '').replace('csv', '').replace(' ', '_').replace("-", "_").lower()
+                print(f"Uploading: {table_name}...")
+                if file.endswith('.csv'): # read .csv files
+                    df = pd.read_csv(file_path)
+                else:
+                    df = pd.read_excel(file_path) #other excel file types
+                df.to_sql(table_name, engine, if_exists='replace', index=False)
+                print(f"Uploaded: {table_name}")
+            else:
+                print(f"{file} is either a directory or not in allowed format")
+                print(f"...skipping\n")
 
     #processing Credit Data folder by merging all the csv files in there
     credit_folder = os.path.join(BASE_DIR / 'data' / 'staging' / 'Credit Data') #base folder for credit data
@@ -42,14 +45,17 @@ def ingest_data():
     if os.path.exists(credit_folder):
         for file in os.listdir(credit_folder):
             file_path = os.path.join(credit_folder, file)
+            table_name = file.replace('.xlsx', '').replace('csv', '').replace(' ', '_').replace("-", "_").lower()
             
             #merge all csv files in the credit data folder
             if file.endswith('.csv'):
+                print(f"Uploading: {table_name}...")
                 temporary_df = pd.read_csv(file_path)
                 credit_frames.append(temporary_df)
             
             #process the definitions excel separately
             elif file == 'Credit Data Definitions.xlsx':
+                print(f"Uploading: {table_name}...")
                 df_definitions = pd.read_excel(file_path)
                 df_definitions.to_sql('credit_data_definitions', engine, if_exists='replace', index=False)
                 print("Uploaded: credit_data_definitions")
@@ -95,9 +101,9 @@ raw_database_df = get_database_data()
 #statistical overview of our data frames
 if raw_database_df:
     for name, df in raw_database_df.items():
-        print(f"\n--- Profiling Summary for: {name} ---")
-        # print(df.describe())
-        # print(df.info())
+        print(f"\n{'-'*25} Profiling Summary for: {name} {'-'*25}")
+        print(df.describe())
+        print(df.info())
 
 #Missing values Analysis
 def df_nulls(dataframes):
@@ -209,8 +215,8 @@ def check_inconsistency(dataframes):
 
 
 if __name__ == "__main__":
-    pass #uncomment the lines below to run the function calls
-    # ingest_data()
+    # pass #uncomment the lines below to run the function calls
+    ingest_data()
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)
     # df_value_counts(raw_database_df)
