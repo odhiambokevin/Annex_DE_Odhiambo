@@ -102,9 +102,33 @@ if raw_database_df:
         print(df.describe())
         print(df.info())
 
+#Missing values Analysis
+def df_nulls(dataframes):
+    for name, df in dataframes.items():
+        print(f"\n{'-'*50}")
+        print(f"Missing values report for {name} table")
+        print(f"{'-'*50}")
+        
+        # Calculate number of nulls
+        no_of_nulls = df.isnull().sum()
+        
+        # Calculate percentages of nulls
+        null_percent = (df.isnull().sum() / len(df)) * 100
+        
+        # Merge into results into a summary table
+        null_summary = pd.DataFrame({
+            'Missing Values': no_of_nulls,
+            'Percentage (%)': null_percent.round(2)
+        })
+ 
+        print(null_summary)    
+        print(f"\nTotal Rows: {len(df)}")
+        print(f"{'-'*50}")
+
+#Frequency Analysis
 def df_value_counts(dataframes):
     for name, df in dataframes.items():
-        print(f"\n{'='*40}")
+        print(f"\n{'-'*50}")
         print(f"Frequency Analysis for {name} table")
         print(f"{'-'*50}\n") #
         
