@@ -69,8 +69,9 @@ if __name__ == "__main__":
 def get_database_data():
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
 
-    tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
+    # tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
     #tables_ns = ["public.sales", "public.nps", "public.credit"] we can filter specific tables like this to use less memory
+    tables_ns = ["nps_data"]
     
     dataframes = {} #this will hold our converted tables as data frames
 
@@ -92,9 +93,25 @@ def get_database_data():
 
 raw_database_df = get_database_data()
 
+# -----------------------DATA CLEANING------------------------------------------------------------------
+
 #statistical overview of our data frames
 if raw_database_df:
     for name, df in raw_database_df.items():
         print(f"\n--- Profiling Summary for: {name} ---")
         print(df.describe())
         print(df.info())
+
+def df_value_counts(dataframes):
+    for name, df in dataframes.items():
+        print(f"\n{'='*40}")
+        print(f"Frequency Analysis for {name} table")
+        print(f"{'-'*50}\n") #
+        
+        for col_name, col_data in df.items():
+            if col_data.nunique() > 20: #covers highly unique columns eg ids
+                print(f"Top 10 of {col_data.nunique()} unique values")
+                print(col_data.value_counts().head(10))
+            else:
+                print(col_data.value_counts(dropna=False))
+                print(f"{'-'*30}")

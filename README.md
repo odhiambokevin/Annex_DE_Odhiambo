@@ -35,5 +35,6 @@ root folder
 2. Setup a virtual environment to install the python dependencies. UV with python version 3.12.3 is used.
 3. Install the requirements.txt file. UV is used in this case `uv pip install -r requirements.txt`. To install UV check out this [link](https://docs.astral.sh/uv/getting-started/installation/)
 4. Have a .env file that reads the environment variables that facilitate database connection.
+5. Ensure to install the `ydata_profiling` package in your environemnt. Refer [here](https://docs.profiling.ydata.ai/latest/getting-started/installation/)
 
 The BASE_DIR variable is used to set the root folder location using the `os module` as in `scripts/data_profiling.py`
