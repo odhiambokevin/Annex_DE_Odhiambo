@@ -74,7 +74,6 @@ def ingest_data():
     else:
         print("Credit Data folder does not exist")
 
-
 def get_database_data():
     print("Getting data from database...")
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
@@ -103,14 +102,14 @@ def get_database_data():
 
 # -----------------------DATA PROFILING------------------------------------------------------------------
 
-#comment out this line to use any of the calls below. I retrieves data from databse
-# raw_database_df = get_database_data()
+#comment out this line to use any of the calls below. It retrieves data from databse
+raw_database_df = get_database_data()
 
 #statistical overview of our data frames
 def statistical_overview(dataframes):
     if dataframes:
         for name, df in dataframes.items():
-            print(f"\n{'-'*25} Profiling Summary for: {name} {'-'*25}")
+            print(f"\n{'-'*25} Descriptive Summary for: {name} {'-'*25}")
             print(df.describe())
             print(df.info())
 
@@ -130,9 +129,12 @@ def df_nulls(dataframes):
             
             # Merge into results into a summary table
             null_summary = pd.DataFrame({
-                'Missing Values': no_of_nulls.sort_values(ascending=False),
-                'Percentage (%)': null_percent.round(2).sort_values(ascending=False)
+                'Missing Values': no_of_nulls,
+                'Percentage (%)': null_percent.round(2)
             })
+
+            #sort by missing values
+            null_summary = null_summary.sort_values(by='Missing Values', ascending=False)
     
             print(null_summary)    
             print(f"\nTotal Rows: {len(df)}")
@@ -227,10 +229,10 @@ def check_inconsistency(dataframes):
             print(f"\n{'-'*25} ENDS {'-'*25}")
 
 if __name__ == "__main__":
-    pass #uncomment the lines below and comment out this one to run the function calls
+    # pass #uncomment the lines below and comment out this one to run the function calls
     # ingest_data()
     # statistical_overview(raw_database_df)
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)
     # df_value_counts(raw_database_df)
-    # df_nulls(raw_database_df)
+    df_nulls(raw_database_df)
