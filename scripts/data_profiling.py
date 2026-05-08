@@ -227,8 +227,8 @@ def check_inconsistency(dataframes):
             print(f"\n{'-'*25} ENDS {'-'*25}")
 
 if __name__ == "__main__":
-    # pass #uncomment the lines below and comment out this one to run the function calls
-    ingest_data()
+    pass #uncomment the lines below and comment out this one to run the function calls
+    # ingest_data()
     # statistical_overview(raw_database_df)
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)

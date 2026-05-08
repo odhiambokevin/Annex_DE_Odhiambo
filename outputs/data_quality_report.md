@@ -191,18 +191,14 @@ Entire Duplicate Rows: 0
                sale_date            939          19809            True
 
 ```
-
 ### 2.3 Inconsistent data
 #### Sales and Customer Data
 #### NPS Data
 #### Credit Data
 I merged the credit data sheets into one wide table. Some of the sheets *Credit Data - 30-06-2025.csv*, *Credit Data - 30-09-2025.csv* and *Credit Data - 30-12-2025.csv* had a blank column in the 29<sup>th</sup> column. This gave an unmaed column in the database with `Unnamed 28:` appearing as a column. This is identified in data cleaning and the ingestion logic is refactored to drop any columns that pandas names as `Unnamed`.
-
+<br>
+<br>
 ## Index
-### 1. Duplicates
-#### NPS Data
-- This is questionnaire and we are not too conerned with duplicates here.
-- We have some duplicates in `Respondent ID` and maybe they took the same survey more than once since the `Submission Id` are unique.
 
 ```bash
 --------------------------------------------------
@@ -233,9 +229,6 @@ Have you ever had your phone lock despite making a payment on t              2  
 
 ```
 
-#### Sales and Customer Data
-- 98% of the data have exact row duplicates and this is a concern.
-
 ```bash
 --------------------------------------------------
 Duplicate analysis for sales_and_customer_data table
@@ -263,7 +256,7 @@ RETURN_POLICY_COMPLIANCE              2        1048573            True
 
 ------------------------- ENDS -------------------------
 ```
-#### Credit Data
+
 ```bash
 --------------------------------------------------
 Duplicate analysis for merged_credit_data table
@@ -310,8 +303,6 @@ TOTAL_PAID_WITH_ADJUSTMENTS_15D          10921          60535            True
 
 ```
 
-### 2. Inconsistent Data
-#### NPS Data
 ```bash
 --------------------------------------------------
 Data inconsistency analysis for nps_data table
@@ -367,7 +358,6 @@ Mixed types: found 2 types: \\[<class 'NoneType'> <class 'str'>]
 ------------------------- ENDS -------------------------
 ```
 
-#### Sales and Customer Data
 ```bash
 --------------------------------------------------
 Data inconsistency analysis for sales_and_customer_data table
@@ -430,7 +420,6 @@ Mixed types: found 2 types: \\[<class 'str'> <class 'NoneType'>]
 
 ```
 
-#### Credit Data
 ```bash
 --------------------------------------------------
 Data inconsistency analysis for merged_credit_data table
@@ -549,8 +538,6 @@ Column: Unnamed: 28
 ------------------------- ENDS -------------------------
 ```
 
-### 3.Frequency Analysis
-#### NPS Data
 ```bash
 --------------------------------------------------
 Frequency analysis for nps_data table
@@ -722,7 +709,6 @@ Name: count, dtype: int64
 ------------------------- ENDS -------------------------
 ```
 
-#### Sales and Customer Data
 ```bash
 --------------------------------------------------
 Frequency analysis for sales_and_customer_data table
@@ -895,7 +881,6 @@ Name: count, dtype: int64
 ------------------------- ENDS -------------------------
 ```
 
-#### Credit Data
 ```bash
 --------------------------------------------------
 Frequency analysis for merged_credit_data table
@@ -1312,8 +1297,6 @@ Name: count, dtype: int64
 ------------------------- ENDS -------------------------
 ```
 
-### 4.Missing Values
-#### NPS Data
 ```bash
 --------------------------------------------------
 Missing values report for nps_data table
@@ -1343,7 +1326,6 @@ Total Rows: 4129
 
 ```
 
-#### Sales and Customer Data
 ```bash
 -------------------------------------------------
 Missing values report for sales_and_customer_data table
@@ -1371,7 +1353,6 @@ Total Rows: 1048575
 ------------------------- ENDS -------------------------
 ```
 
-#### Credit Data
 ```bash
 --------------------------------------------------
 Missing values report for merged_credit_data table

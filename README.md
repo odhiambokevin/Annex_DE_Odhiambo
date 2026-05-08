@@ -41,3 +41,14 @@ root folder
 5. Ensure to install the `ydata_profiling` package in your environemnt. Refer [here](https://docs.profiling.ydata.ai/latest/getting-started/installation/)
 
 The BASE_DIR variable is used to set the root folder location using the `os module` as in `scripts/data_profiling.py`
+
+## Cleaning Script
+The cleaning script uses an order, in line with python's interpreted nature. For instance, the first step involves cleaning all the column names by standardizing them. These datasets with clean columns are used in the subsquent steps. The output of a preceeding step is used as the input in the proceeding step.
+
+For ease of demonstration, stale datasets are kept in the code for producability of the steps. Of course this behavious would change for a production level database.
+
+### Cleaning sequence
+```mermaid
+flowchart TD
+    Columns renamed --> Exact Row Duplicates Removed --> Data Types Changed --> Output Sample CSV
+```

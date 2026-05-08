@@ -54,13 +54,6 @@ def rename_df_cols(dataframes):
 # raw_database_df = get_database_data()
 renamed_df = rename_df_cols(get_database_data())
 
-# for name,df in renamed_df.items():
-#     print("\n")
-#     print(f"{"-"*50} DataFrame: {name} {"-"*50}")
-#     cols = df.columns.tolist()
-#     print(f"Columns ({len(cols)}): {cols}")
-#     print("\n")
-
 #delete entire row duplicates
 def remove_exact_row_duplicate(dataframes):
     identify_duplicates(dataframes) #get duplicate reports
@@ -86,8 +79,6 @@ def remove_exact_row_duplicate(dataframes):
     return duplicates_removed_df
 
 duplicates_removed = remove_exact_row_duplicate(renamed_df)
-identify_duplicates(duplicates_removed)
-
 
 # my_nps = renamed_df['nps_data']
 # print(my_nps.columns)
