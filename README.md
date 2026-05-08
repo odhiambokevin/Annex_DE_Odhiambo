@@ -50,5 +50,12 @@ For ease of demonstration, stale datasets are kept in the code for producability
 ### Cleaning sequence
 ```mermaid
 flowchart TD
-    Columns renamed --> Exact Row Duplicates Removed --> Data Types Changed --> Output Sample CSV
+  Columns renamed --> Exact Row Duplicates Removed --> Data Types Changed --> Output Sample CSV
+```
+```mermaid
+  graph TD;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
 ```
