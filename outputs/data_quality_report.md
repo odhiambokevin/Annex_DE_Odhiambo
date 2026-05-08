@@ -1,6 +1,6 @@
 # Data Quality Report
 
-## Profile
+## Data Profile
 #### NPS Data
 - It has 4129 records of which non-nulls are 3985. Since this is a standard questionnaire response we wont' be concerned much about the nulls.
 - We also get a general overview of the columns to expect
@@ -144,8 +144,27 @@ dtypes: float64(14), int64(9), object(11)
 memory usage: 18.5+ MB
 None
 ```
+## Data Cleaning
+### 1. Column Names
+I standardized all columns in the dataset to lowercase. From experience, this makes writing sql queries and transformation logic in warehouses for modularity easier.
 
-## 1. Duplicates
+NPS Data had very lengthy column names as it was a survey. I shortened them to capture the framing as faithfully as possible, The main goal is keeping them short.
+
+Renaming of column names with spaces eg `submitted at` to `submitted_at` is done for consistency with the data. `loan id` in `sales and customer` data becomes `loan_id`
+
+The `"_".join(col.lower().split())` used in the cleaning script ensures multiple spaces are accounted for in cleaning so that `submmitted at` and `submitted` &nbsp; `at` will both default to `submitted_at`.
+
+Sample output
+```bash
+-------------------------------------------------- DataFrame: sales_and_customer_data --------------------------------------------------
+Columns (16): ['sale_id', 'sale_date', 'returned', 'return_date', 'sale_type', 'seller', 'seller_type', 'return_policy_compliance', 'cash_price', 'loan_price', 'client_model', 'business_model', 'loan_term', 'product_name', 'model', 'loan_id']
+
+-------------------------------------------------- DataFrame: nps_data --------------------------------------------------
+Columns (17): ['submission_id', 'respondent_id', 'submitted_at', 'loan_id', 'recommend_score', 'recommend_score_reason', 'improv_feedb', 'happy_device_perfomance', 'happy_with_asst', 'payment_update_delay', 'diff_get_asst', 'diff_get_asst_remark', 'batt_issues', 'used_app_for_acc_mgt', 'prefered_comm_chan', 'locked_paid_on_time', 'other_feedb']
+```
+
+
+### 1. Duplicates
 #### NPS Data
 - This is questionnaire and we are not too conerned with duplicates here.
 - We have some duplicates in `Respondent ID` and maybe they took the same survey more than once since the `Submission Id` are unique.
@@ -256,7 +275,7 @@ TOTAL_PAID_WITH_ADJUSTMENTS_15D          10921          60535            True
 
 ```
 
-## 2. Inconsistent Data
+### 2. Inconsistent Data
 #### NPS Data
 ```bash
 --------------------------------------------------
@@ -495,7 +514,7 @@ Column: Unnamed: 28
 ------------------------- ENDS -------------------------
 ```
 
-## 3.Frequency Analysis
+### 3.Frequency Analysis
 #### NPS Data
 ```bash
 --------------------------------------------------
@@ -1258,7 +1277,7 @@ Name: count, dtype: int64
 ------------------------- ENDS -------------------------
 ```
 
-## 4.Missing Values
+### 4.Missing Values
 #### NPS Data
 ```bash
 --------------------------------------------------

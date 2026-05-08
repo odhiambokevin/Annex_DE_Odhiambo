@@ -70,11 +70,12 @@ def ingest_data():
 
 
 def get_database_data():
+    print("Getting data from database...")
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
 
     tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
     #tables_ns = ["merged_credit_data", "sales",] we can filter specific tables like this to use less memory
-    # tables_ns = ["merged_credit_data"]
+    # tables_ns = ["merged_credit_data"] only for development to speed up testing
     
     dataframes = {} #this will hold our converted tables as data frames
 
@@ -96,127 +97,133 @@ def get_database_data():
 
 # -----------------------DATA PROFILING------------------------------------------------------------------
 
-raw_database_df = get_database_data()
+#comment out this line to use any of the calls below. I retrieves data from databse
+# raw_database_df = get_database_data()
 
 #statistical overview of our data frames
-if raw_database_df:
-    for name, df in raw_database_df.items():
-        print(f"\n{'-'*25} Profiling Summary for: {name} {'-'*25}")
-        print(df.describe())
-        print(df.info())
+def statistical_overview(dataframes):
+    if dataframes:
+        for name, df in dataframes.items():
+            print(f"\n{'-'*25} Profiling Summary for: {name} {'-'*25}")
+            print(df.describe())
+            print(df.info())
 
 #Missing values Analysis
 def df_nulls(dataframes):
-    for name, df in dataframes.items():
-        print(f"\n{'-'*50}")
-        print(f"Missing values report for {name} table")
-        print(f"{'-'*50}")
-        
-        # Calculate number of nulls
-        no_of_nulls = df.isnull().sum()
-        
-        # Calculate percentages of nulls
-        null_percent = (df.isnull().sum() / len(df)) * 100
-        
-        # Merge into results into a summary table
-        null_summary = pd.DataFrame({
-            'Missing Values': no_of_nulls.sort_values(ascending=False),
-            'Percentage (%)': null_percent.round(2).sort_values(ascending=False)
-        })
- 
-        print(null_summary)    
-        print(f"\nTotal Rows: {len(df)}")
-        print(f"\n{'-'*25} ENDS {'-'*25}")
+    if dataframes:
+        for name, df in dataframes.items():
+            print(f"\n{'-'*50}")
+            print(f"Missing values report for {name} table")
+            print(f"{'-'*50}")
+            
+            # Calculate number of nulls
+            no_of_nulls = df.isnull().sum()
+            
+            # Calculate percentages of nulls
+            null_percent = (df.isnull().sum() / len(df)) * 100
+            
+            # Merge into results into a summary table
+            null_summary = pd.DataFrame({
+                'Missing Values': no_of_nulls.sort_values(ascending=False),
+                'Percentage (%)': null_percent.round(2).sort_values(ascending=False)
+            })
+    
+            print(null_summary)    
+            print(f"\nTotal Rows: {len(df)}")
+            print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Frequency Analysis
 def df_value_counts(dataframes):
-    for name, df in dataframes.items():
-        print(f"\n{'-'*50}")
-        print(f"Frequency analysis for {name} table")
-        print(f"{'-'*50}\n") #
-        
-        for col_name, col_data in df.items():
-            if col_data.nunique() > 20: #covers highly unique columns eg ids
-                print(f"Top 10 of {col_data.nunique()} unique values")
-                print(col_data.value_counts().head(10))
-            else:
-                print(col_data.value_counts(dropna=False))
-        print(f"\n{'-'*25} ENDS {'-'*25}")
+    if dataframes:
+        for name, df in dataframes.items():
+            print(f"\n{'-'*50}")
+            print(f"Frequency analysis for {name} table")
+            print(f"{'-'*50}\n") #
+            
+            for col_name, col_data in df.items():
+                if col_data.nunique() > 20: #covers highly unique columns eg ids
+                    print(f"Top 10 of {col_data.nunique()} unique values")
+                    print(col_data.value_counts().head(10))
+                else:
+                    print(col_data.value_counts(dropna=False))
+            print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Identifying duplicates
 def identify_duplicates(dataframes):
-    for name, df in dataframes.items():
-        print(f"\n{'-'*50}")
-        print(f"Duplicate analysis for {name} table")
-        print(f"{'-'*50}")
+    if dataframes:
+        for name, df in dataframes.items():
+            print(f"\n{'-'*50}")
+            print(f"Duplicate analysis for {name} table")
+            print(f"{'-'*50}")
 
-        #Identify entire row contents that are duplicates
-        total_rows = len(df)
-        no_of_duplicate_row = df.duplicated().sum()
-        
-        print(f"Total Rows: {total_rows}")
-        print(f"Entire Duplicate Rows: {no_of_duplicate_row}") #can help to identify ingestion discrepancy in pipeline
-        
-        if no_of_duplicate_row > 0:
-            percentage = (no_of_duplicate_row / total_rows) * 100
-            print(f"{percentage:.2f}% of the data consists of exact duplicates.") #:.2f ensure trailing zeros included
-        
-        #Identify column level duplicated
-        column_summary = []
-        for col in df.columns:
-            no_of_unique = df[col].nunique()
-            is_unique = no_of_unique == total_rows
-            column_summary.append({
-                'Column': col,
-                'Unique Values': no_of_unique,
-                'No Duplicates': total_rows - no_of_unique,
-                'Has Duplicates': not is_unique
-            })
-        
-        #Display summary table
-        column_summary_df = pd.DataFrame(column_summary)
-        print(column_summary_df.to_string(index=False))
-        print(f"\n{'-'*25} ENDS {'-'*25}")
+            #Identify entire row contents that are duplicates
+            total_rows = len(df)
+            no_of_duplicate_row = df.duplicated().sum()
+            
+            print(f"Total Rows: {total_rows}")
+            print(f"Entire Duplicate Rows: {no_of_duplicate_row}") #can help to identify ingestion discrepancy in pipeline
+            
+            if no_of_duplicate_row > 0:
+                percentage = (no_of_duplicate_row / total_rows) * 100
+                print(f"{percentage:.2f}% of the data consists of exact duplicates.") #:.2f ensure trailing zeros included
+            
+            #Identify column level duplicated
+            column_summary = []
+            for col in df.columns:
+                no_of_unique = df[col].nunique()
+                is_unique = no_of_unique == total_rows
+                column_summary.append({
+                    'Column': col,
+                    'Unique Values': no_of_unique,
+                    'No Duplicates': total_rows - no_of_unique,
+                    'Has Duplicates': not is_unique
+                })
+            
+            #Display summary table
+            column_summary_df = pd.DataFrame(column_summary)
+            print(column_summary_df.to_string(index=False))
+            print(f"\n{'-'*25} ENDS {'-'*25}")
 
 #Asses data inconsistency
 def check_inconsistency(dataframes):
-    for name, df in dataframes.items():
-        print(f"\n{'-'*50}")
-        print(f"Data inconsistency analysis for {name} table")
-        print(f"{'-'*50}")
+    if dataframes:
+        for name, df in dataframes.items():
+            print(f"\n{'-'*50}")
+            print(f"Data inconsistency analysis for {name} table")
+            print(f"{'-'*50}")
 
-        for col in df.columns:
-            print(f"\nColumn: {col}")
-            
-            #Assess mix of data types
-            types_in_col = df[col].apply(type).unique() #checks for all different data types in a column
-            if len(types_in_col) > 1:
-                print(f"Mixed types: found {len(types_in_col)} types: {types_in_col}")
+            for col in df.columns:
+                print(f"\nColumn: {col}")
+                
+                #Assess mix of data types
+                types_in_col = df[col].apply(type).unique() #checks for all different data types in a column
+                if len(types_in_col) > 1:
+                    print(f"Mixed types: found {len(types_in_col)} types: {types_in_col}")
 
-            #Check for white spaces
-            if df[col].dtype == 'object':
-                whitespace_count = df[col].apply(lambda x: isinstance(x, str) and (x != x.strip())).sum()
-                if whitespace_count > 0:
-                    print(f"White space: {whitespace_count} rows have whitespaces.")
+                #Check for white spaces
+                if df[col].dtype == 'object':
+                    whitespace_count = df[col].apply(lambda x: isinstance(x, str) and (x != x.strip())).sum()
+                    if whitespace_count > 0:
+                        print(f"White space: {whitespace_count} rows have whitespaces.")
 
-            #checking for outliers in numbers
-            if pd.api.types.is_numeric_dtype(df[col]):
-                mean = df[col].mean()
-                std = df[col].std()
-                outliers = df[(df[col] - mean).abs() > 3 * std][col] #3 standard deviation away needs extra probing
-                if not outliers.empty:
-                    print(f"Outliers: {len(outliers)} potential outliers are 3 stadard dev. away")
+                #checking for outliers in numbers
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    mean = df[col].mean()
+                    std = df[col].std()
+                    outliers = df[(df[col] - mean).abs() > 3 * std][col] #3 standard deviation away needs extra probing
+                    if not outliers.empty:
+                        print(f"Outliers: {len(outliers)} potential outliers are 3 stadard dev. away")
 
-            #empty values
-            zeros = (df[col] == 0).sum()
-            if zeros > 0:
-                print(f"Zeros: {zeros} rows contain the value 0.")
-        print(f"\n{'-'*25} ENDS {'-'*25}")
-
+                #empty values
+                zeros = (df[col] == 0).sum()
+                if zeros > 0:
+                    print(f"Zeros: {zeros} rows contain the value 0.")
+            print(f"\n{'-'*25} ENDS {'-'*25}")
 
 if __name__ == "__main__":
-    pass #uncomment the lines below and comment this one to run the function calls
+    pass #uncomment the lines below and comment out this one to run the function calls
     # ingest_data()
+    # statistical_overview(raw_database_df)
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)
     # df_value_counts(raw_database_df)
