@@ -192,10 +192,12 @@ Entire Duplicate Rows: 0
 
 ```
 ### 2.3 Inconsistent data
-#### Sales and Customer Data
-#### NPS Data
+I have used a function `change_data_types` that converts all the data types in a column in all loaded excel files to the most frequent data type for that column. For demonstration and time constraints, I have used `errors='coerce'` but in production I intend to use`errors='raise'` so that sensitive numerical columns for money are not harmonized. For instance `12oo` should raise an error as it could be `1,200`.
+
+In the function `change_data_types`, floats are treaded uniquely. Pandas see an empty cell as a float. So these can be ignored since internally it sees them as NaN. I have factored this in the logic so that if there are 90 empty cells in a column with 100 rows and 10 integers, the logic goes for the second most frequent valid data type for conversion. It would check for these empty cells then go for int as the data type for the column. While previously the empty cells (Float) would force the column to be ignored and status quo (Mixed data types) would hold.
+
 #### Credit Data
-I merged the credit data sheets into one wide table. Some of the sheets *Credit Data - 30-06-2025.csv*, *Credit Data - 30-09-2025.csv* and *Credit Data - 30-12-2025.csv* had a blank column in the 29<sup>th</sup> column. This gave an unmaed column in the database with `Unnamed 28:` appearing as a column. This is identified in data cleaning and the ingestion logic is refactored to drop any columns that pandas names as `Unnamed`.
+I merged the credit data sheets into one wide table. Some of the sheets *Credit Data - 30-06-2025.csv*, *Credit Data - 30-09-2025.csv* and *Credit Data - 30-12-2025.csv* had a blank column in the 29<sup>th</sup> column. This gave an unnamed column in the database with `Unnamed 28:` appearing as a column. This is identified in data cleaning and the ingestion logic is refactored to drop any columns that pandas names as `Unnamed`.
 <br>
 <br>
 ## Index

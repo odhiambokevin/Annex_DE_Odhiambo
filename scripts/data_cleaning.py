@@ -1,3 +1,7 @@
+import datetime
+import pandas as pd
+from pandas import NaT,Timestamp
+import numpy as np
 from data_profiling import get_database_data,df_value_counts,df_nulls,check_inconsistency,identify_duplicates
 
 #renaming long column names and lowercase all columns (my personal preference to lowercase)
@@ -51,12 +55,10 @@ def rename_df_cols(dataframes):
         
     return renamed_df
 
-# raw_database_df = get_database_data()
 renamed_df = rename_df_cols(get_database_data())
 
 #delete entire row duplicates
 def remove_exact_row_duplicate(dataframes):
-    identify_duplicates(dataframes) #get duplicate reports
     duplicates_removed_df= {}
 
     print(f"\n{'-'*50} Removing exact row duplicates {'_'*50}")
@@ -80,5 +82,68 @@ def remove_exact_row_duplicate(dataframes):
 
 duplicates_removed = remove_exact_row_duplicate(renamed_df)
 
-# my_nps = renamed_df['nps_data']
-# print(my_nps.columns)
+def change_data_types(dataframes):
+    uniform_datatypes_df = {}
+
+    print("Changing data types...")
+
+    for name, df in dataframes.items():
+        temporary_df = df.copy() # we keep the original df unchanged
+        
+        for col in temporary_df.columns:
+            type_counts = temporary_df[col].apply(type).value_counts() #number of count per type
+            
+           #if multiple types are found, enforce the modal type
+            if len(type_counts) > 1:
+                #this logic tries to go for second most freq type if most are in the null types
+                null_types = {type(None), type(pd.NA), type(NaT)}
+                real_types = [t for t in type_counts.index if t not in null_types]
+
+                if not real_types: #this ignores a completely empty column and does not assign it as an empty string
+                    print(f"Skipping {col}: No real data types found...")
+                    continue
+
+                most_frequent_type = real_types[0]
+
+                print(f"Table [{name}] | Column [{col}]: changing types to {most_frequent_type.__name__}")
+
+                #I handle float exclusively since pandas sees empty cell as float(NaN) not accounting for coordinates,%s
+                if most_frequent_type is float:
+                    if temporary_df[col].count() == 0:
+                        if len(real_types) > 1: #most frequent is float but all are empty but we have other real types
+                            most_frequent_type = real_types[1] #goes for second most frequent type
+                        else:
+                            #we skip the empty skip it
+                            continue
+
+                if most_frequent_type is type(NaT) or most_frequent_type is type(None):
+                    print(f"Skipping column [{col}] for table [{name}] - it contains only null-like values.")
+                    continue
+
+                if 'timestamp' in str(most_frequent_type).lower() or 'datetime' in str(most_frequent_type).lower():
+                    temporary_df[col] = pd.to_datetime(temporary_df[col], errors='coerce')
+
+                elif most_frequent_type is float:
+                    #this now keeps coordinates as well as percentages decimals which can be ignored by pandas
+                    temporary_df[col] = pd.to_numeric(temporary_df[col], errors='coerce')
+
+                elif most_frequent_type is int:
+                    #use errors='raise' in production to enforce strict check for numbers so that 12oo can be raised
+                    #int64 allows code with integers and Nan run without crashing
+                    temporary_df[col] = pd.to_numeric(temporary_df[col], errors='coerce').astype('Int64')
+                
+                elif most_frequent_type is str:
+                    #ensures it is null and not the sring "nan" which pandas does when converting objects to strings
+                    temporary_df[col] = temporary_df[col].astype(str).replace('nan', pd.NA) 
+                
+                else:
+                    # Fallback for other types
+                    temporary_df[col] = temporary_df[col].astype(most_frequent_type)
+
+        uniform_datatypes_df[name] = temporary_df
+        print(f"Finished processing {name} file types")
+
+    print("data type changes successful!")
+    return uniform_datatypes_df
+
+clean_data_types = change_data_types(duplicates_removed)

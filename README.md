@@ -45,7 +45,7 @@ The BASE_DIR variable is used to set the root folder location using the `os modu
 ## Cleaning Script
 The cleaning script uses an order, in line with python's interpreted nature. For instance, the first step involves cleaning all the column names by standardizing them. These datasets with clean columns are used in the subsquent steps. The output of a preceeding step is used as the input in the proceeding step.
 
-For ease of demonstration, stale datasets are kept in the code for producability of the steps. Of course this behavious would change for a production level database.
+For ease of demonstration, stale datasets are kept in the code for producability of the steps. Of course this behaviour would change for a production level database.
 
 ### Cleaning sequence
 ```mermaid
