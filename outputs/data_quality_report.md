@@ -1,6 +1,10 @@
 # Data Quality Report
 
-## Data Profile
+This is the Data Quality report for ABC Phones data retrieved from Excel files. Cleaning steps and decisions are also included in this report.
+
+There is an index at the end of this document that shows the results of the profiling script.
+
+## 1. Data Profile Summary
 #### NPS Data
 - It has 4129 records of which non-nulls are 3985. Since this is a standard questionnaire response we wont' be concerned much about the nulls.
 - We also get a general overview of the columns to expect
@@ -144,11 +148,11 @@ dtypes: float64(14), int64(9), object(11)
 memory usage: 18.5+ MB
 None
 ```
-## Data Cleaning
-### 1. Column Names
-I standardized all columns in the dataset to lowercase. From experience, this makes writing sql queries and transformation logic in warehouses for modularity easier.
+## 2. Data Cleaning
+### 2.1 Column names
+All column names in the dataset are set to lowercase. From experience, this makes writing sql queries and transformation logic in warehouses for modularity easier.
 
-NPS Data had very lengthy column names as it was a survey. I shortened them to capture the framing as faithfully as possible, The main goal is keeping them short.
+`NPS Data` had very lengthy column names as it was a survey. I shortened them to capture the framing as faithfully as possible. The main goal is keeping them short.
 
 Renaming of column names with spaces eg `submitted at` to `submitted_at` is done for consistency with the data. `loan id` in `sales and customer` data becomes `loan_id`
 
@@ -162,8 +166,39 @@ Columns (16): ['sale_id', 'sale_date', 'returned', 'return_date', 'sale_type', '
 -------------------------------------------------- DataFrame: nps_data --------------------------------------------------
 Columns (17): ['submission_id', 'respondent_id', 'submitted_at', 'loan_id', 'recommend_score', 'recommend_score_reason', 'improv_feedb', 'happy_device_perfomance', 'happy_with_asst', 'payment_update_delay', 'diff_get_asst', 'diff_get_asst_remark', 'batt_issues', 'used_app_for_acc_mgt', 'prefered_comm_chan', 'locked_paid_on_time', 'other_feedb']
 ```
+### 2.2 Duplicate data
+#### Sales and Customer Data
+This dataset has **1,027,827** duplicate rows which have exact same data as identified by the `identify_duplicates` function. It may be an issue with ingestion logic. All the exact duplicate rows are dropped.
 
+The new dataset has 20748 rows. It is now easier to query indepth the 1 duplicate row in `sale_id`.
 
+sample output
+```bash
+-------------------------------------------------- Removing exact row duplicates ----------------------------------------
+Table: sales_and_customer_data | Removed 1027827 duplicate rows.
+Table: nps_data | Removed 0 duplicate rows.
+Table: credit_data_definitions | Removed 0 duplicate rows.
+Table: merged_credit_data | Removed 0 duplicate rows.
+__________________________________________________ Exact row duplicates removed ----------------------------------------
+
+--------------------------------------------------
+Duplicate analysis for sales_and_customer_data table
+--------------------------------------------------
+Total Rows: 20748
+Entire Duplicate Rows: 0
+                  Column  Unique Values  No Duplicates  Has Duplicates
+                 sale_id          20747              1            True
+               sale_date            939          19809            True
+
+```
+
+### 2.3 Inconsistent data
+#### Sales and Customer Data
+#### NPS Data
+#### Credit Data
+I merged the credit data sheets into one wide table. Some of the sheets *Credit Data - 30-06-2025.csv*, *Credit Data - 30-09-2025.csv* and *Credit Data - 30-12-2025.csv* had a blank column in the 29<sup>th</sup> column. This gave an unmaed column in the database with `Unnamed 28:` appearing as a column. This is identified in data cleaning and the ingestion logic is refactored to drop any columns that pandas names as `Unnamed`.
+
+## Index
 ### 1. Duplicates
 #### NPS Data
 - This is questionnaire and we are not too conerned with duplicates here.

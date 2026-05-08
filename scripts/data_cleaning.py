@@ -1,7 +1,7 @@
-from data_profiling import get_database_data,df_value_counts
+from data_profiling import get_database_data,df_value_counts,df_nulls,check_inconsistency,identify_duplicates
 
 #renaming long column names and lowercase all columns (my personal preference to lowercase)
-def rename_df_cols(raw_dataframes):
+def rename_df_cols(dataframes):
     renamed_df = {}
 
     #renaming of only long columns names from nps_data
@@ -21,7 +21,7 @@ def rename_df_cols(raw_dataframes):
     'Any other Feedback?': 'other_feedb',
     }
 
-    for name, df in raw_dataframes.items():
+    for name, df in dataframes.items():
         #copy so original dictionary data remains
         temporary_df = df.copy()
         
@@ -53,11 +53,41 @@ def rename_df_cols(raw_dataframes):
 
 # raw_database_df = get_database_data()
 renamed_df = rename_df_cols(get_database_data())
-for name,df in renamed_df.items():
-    print("\n")
-    print(f"{"-"*50} DataFrame: {name} {"-"*50}")
-    cols = df.columns.tolist()
-    print(f"Columns ({len(cols)}): {cols}")
-    print("\n")
+
+# for name,df in renamed_df.items():
+#     print("\n")
+#     print(f"{"-"*50} DataFrame: {name} {"-"*50}")
+#     cols = df.columns.tolist()
+#     print(f"Columns ({len(cols)}): {cols}")
+#     print("\n")
+
+#delete entire row duplicates
+def remove_exact_row_duplicate(dataframes):
+    identify_duplicates(dataframes) #get duplicate reports
+    duplicates_removed_df= {}
+
+    print(f"\n{'-'*50} Removing exact row duplicates {'_'*50}")
+
+    for name, df in dataframes.items():
+        #identify number of duplicates before removing
+        before_count = len(df)
+        
+        #drop duplicates but keep original dictionary since copy creates a new df
+        duplicates_removed = df.drop_duplicates().copy()
+        
+        after_count = len(duplicates_removed)
+        dropped_duplicates_count = before_count - after_count
+        
+        duplicates_removed_df[name] = duplicates_removed
+        
+        print(f"Table: {name} | Removed {dropped_duplicates_count} duplicate rows.")
+    print(f"{'_'*50} Exact row duplicates removed successfully{'_'*50}\n")
+    
+    return duplicates_removed_df
+
+duplicates_removed = remove_exact_row_duplicate(renamed_df)
+identify_duplicates(duplicates_removed)
+
+
 # my_nps = renamed_df['nps_data']
 # print(my_nps.columns)

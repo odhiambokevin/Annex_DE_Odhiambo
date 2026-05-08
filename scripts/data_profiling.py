@@ -30,8 +30,12 @@ def ingest_data():
                 print(f"Uploading: {table_name}...")
                 if file.endswith('.csv'): # read .csv files
                     df = pd.read_csv(file_path)
+                    df = df.dropna(axis=1, how='all')
+                    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
                 else:
                     df = pd.read_excel(file_path) #other excel file types
+                    df = df.dropna(axis=1, how='all')
+                    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
                 df.to_sql(table_name, engine, if_exists='replace', index=False)
                 print(f"Uploaded: {table_name}")
             else:
@@ -63,7 +67,9 @@ def ingest_data():
         #combine and upload merged credit data file
         if credit_frames:
             merged_credit_df = pd.concat(credit_frames, ignore_index=True)
-            merged_credit_df.to_sql('merged_credit_data', engine, if_exists='replace', index=False)
+            #drops any blank columns from excel
+            merged_credit_df_drop_unnamed = merged_credit_df.loc[:, ~merged_credit_df.columns.str.contains('^Unnamed')] 
+            merged_credit_df_drop_unnamed.to_sql('merged_credit_data', engine, if_exists='replace', index=False)
             print(f"Uploaded merged credit data: {len(credit_frames)} files merged")
     else:
         print("Credit Data folder does not exist")
@@ -221,8 +227,8 @@ def check_inconsistency(dataframes):
             print(f"\n{'-'*25} ENDS {'-'*25}")
 
 if __name__ == "__main__":
-    pass #uncomment the lines below and comment out this one to run the function calls
-    # ingest_data()
+    # pass #uncomment the lines below and comment out this one to run the function calls
+    ingest_data()
     # statistical_overview(raw_database_df)
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)

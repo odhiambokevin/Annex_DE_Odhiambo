@@ -18,6 +18,7 @@ The following assumptions are made for this project.
 1. The Credit Data will always be accompanied by a relevant definitions file to allow the scripts in data_profiling.py to successfully create the 
 resultant tables.
 2. There is a "data folder" with the following structure in the root file (Same level as README)
+3. Excel data needed for analysis are in `sheet1` as import always ignores other sheets in the workbook. Other data sheets will be factored for indepth engineering in production mode.
 
 ```
 root folder
@@ -35,7 +36,7 @@ root folder
 ## Setup
 1. Clone the repo using `git clone https://github.com/odhiambokevin/Annex_DE_Odhiambo.git`
 2. Setup a virtual environment to install the python dependencies. UV with python version 3.12.3 is used.
-3. Install the requirements.txt file. UV is used in this case `uv pip install -r requirements.txt`. To install UV check out this [link](https://docs.astral.sh/uv/getting-started/installation/)
+3. Install the dependencies in the requirements.txt file. UV is used in this case `uv pip install -r requirements.txt`. To install UV check out this [link](https://docs.astral.sh/uv/getting-started/installation/)
 4. Have a .env file that reads the environment variables that facilitate database connection.
 5. Ensure to install the `ydata_profiling` package in your environemnt. Refer [here](https://docs.profiling.ydata.ai/latest/getting-started/installation/)
 
