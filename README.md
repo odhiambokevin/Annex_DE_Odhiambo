@@ -1,6 +1,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/odhiambokevin/Annex_DE_Odhiambo)
 
 # ANNEX TECHNOLOGIES - Data Engineer Case Study
+by [Kevin Odhiambo](https://kevin.yaspi.tech)
 
 > [!Note]
 > This is a fictitious case study of a phone company, ABC Phones.
@@ -13,12 +14,20 @@ ABC Phones offers smartphones to customers through installment-based credit plan
 While ABC Phones has systems to process payments and manage accounts, their data engineering and analytics infrastructure is still maturing.
 
 This is a scalable codebase that addresses their current challenges.
+
+## ELT
+The pipeline uses an ELT approach and loads all the data from source into our `postgres` warehouse. We don't even need to know the specific files in the datasets. It loads everything from the source destination.
+
+The good thing with this approach is that we don\'t need to even create any tables beforehand. We just need to have a database that exists.
+
 ## Assumptions
 The following assumptions are made for this project.
 1. The Credit Data will always be accompanied by a relevant definitions file to allow the scripts in data_profiling.py to successfully create the 
 resultant tables.
 2. There is a "data folder" with the following structure in the root file (Same level as README)
 3. Excel data needed for analysis are in `sheet1` as import always ignores other sheets in the workbook. Other data sheets will be factored for indepth engineering in production mode.
+4. Only Excel type files will be ingested (.csv,.xlsx,.xls)
+5. For `Credit Data`, they will be in a separate folder as `.csv` and possibly include an accompanying definitons file as `.xlsx` or `.xlx`.
 
 ```
 root folder

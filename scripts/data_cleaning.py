@@ -1,4 +1,3 @@
-import datetime
 import pandas as pd
 from pandas import NaT,Timestamp
 import numpy as np
@@ -55,8 +54,6 @@ def rename_df_cols(dataframes):
         
     return renamed_df
 
-renamed_df = rename_df_cols(get_database_data())
-
 #delete entire row duplicates
 def remove_exact_row_duplicate(dataframes):
     duplicates_removed_df= {}
@@ -80,7 +77,7 @@ def remove_exact_row_duplicate(dataframes):
     
     return duplicates_removed_df
 
-duplicates_removed = remove_exact_row_duplicate(renamed_df)
+# duplicates_removed = remove_exact_row_duplicate(renamed_df)
 
 def change_data_types(dataframes):
     uniform_datatypes_df = {}
@@ -146,4 +143,4 @@ def change_data_types(dataframes):
     print("data type changes successful!")
     return uniform_datatypes_df
 
-clean_data_types = change_data_types(duplicates_removed)
+# clean_data_types = change_data_types(duplicates_removed)

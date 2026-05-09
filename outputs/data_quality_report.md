@@ -2,8 +2,6 @@
 
 This is the Data Quality report for ABC Phones data retrieved from Excel files. Cleaning steps and decisions are also included in this report.
 
-There is an index at the end of this document that shows the results of the profiling script.
-
 ## 1. Data Profile Summary
 #### NPS Data
 ```bash
@@ -18,6 +16,8 @@ min              2025-04-22 15:15:00                                           0
 max              2025-12-27 02:06:00                                          10.000000              
 std                              NaN                                           3.386783   
 ```
+<br>
+
 ```bash
 ------------------------- Descriptive Summary for: nps_data -------------------------
 <class 'pandas.core.frame.DataFrame'>
@@ -46,6 +46,8 @@ dtypes: datetime64[ns](1), float64(1), object(15)
 memory usage: 548.5+ KB
 None
 ```
+<br>
+
 ```bash
 --------------------------------------------------
 Missing values report for nps_data table
@@ -68,11 +70,11 @@ Submission ID                                                    0            0.
 Submitted at                                                     0            0.00
 Loan Id                                                          0            0.00
 Respondent ID                                                    0            0.00
-
 Total Rows: 4129
-
 ------------------------- ENDS -------------------------
 ```
+<br>
+
 #### Sales and Customer Data
 ```bash
 ------------------------- Profiling Summary for: sales_and_customer_data -------------------------
@@ -86,6 +88,8 @@ min              2023-02-08 00:00:00      0.000000            2023-03-16 00:00:0
 max              2025-12-29 00:00:00      1.000000            2025-12-29 00:00:00  215499.000000  334219.000000
 std                              NaN      0.277413                            NaN   
 ```
+<br>
+
 ```bash
 ------------------------- Descriptive Summary for: sales_and_customer_data -------------------------
 <class 'pandas.core.frame.DataFrame'>
@@ -113,6 +117,37 @@ dtypes: datetime64[ns](2), float64(3), object(11)
 memory usage: 128.0+ MB
 None
 ```
+<br>
+
+```bash
+--------------------------------------------------
+Duplicate analysis for sales_and_customer_data table
+--------------------------------------------------
+Total Rows: 1048575
+Entire Duplicate Rows: 1027827
+98.02% of the data consists of exact duplicates.
+                  Column  Unique Values  No Duplicates  Has Duplicates
+                 SALE_ID          20747        1027828            True
+               SALE_DATE            939        1047636            True
+                RETURNED              2        1048573            True
+             RETURN_DATE            530        1048045            True
+               SALE_TYPE              3        1048572            True
+                  SELLER            519        1048056            True
+             SELLER_TYPE              5        1048570            True
+RETURN_POLICY_COMPLIANCE              2        1048573            True
+              CASH_PRICE            259        1048316            True
+              LOAN_PRICE            930        1047645            True
+            CLIENT_MODEL              3        1048572            True
+          BUSINESS_MODEL              7        1048568            True
+               LOAN_TERM              3        1048572            True
+            PRODUCT_NAME            132        1048443            True
+                   MODEL             82        1048493            True
+                 Loan Id          20691        1027884            True
+
+------------------------- ENDS -------------------------
+```
+<br>
+
 ```bash
 --------------------------------------------------
 Missing values report for sales_and_customer_data table
@@ -134,11 +169,70 @@ SALE_DATE                        1027828           98.02
 SALE_ID                          1027828           98.02
 RETURNED                         1027828           98.02
 BUSINESS_MODEL                   1027828           98.02
-
 Total Rows: 1048575
-
 ------------------------- ENDS -------------------------
 ```
+<br>
+
+```bash
+--------------------------------------------------
+Data inconsistency analysis for sales_and_customer_data table
+--------------------------------------------------
+Column: SALE_ID
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: SALE_DATE
+Mixed types: found 2 types: [<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+ <class 'pandas._libs.tslibs.nattype.NaTType'>]
+
+Column: RETURNED
+Outliers: 1743 potential outliers are 3 stadard dev. away
+Zeros: 19004 rows contain the value 0.
+
+Column: RETURN_DATE
+Mixed types: found 2 types: [<class 'pandas._libs.tslibs.nattype.NaTType'>
+ <class 'pandas._libs.tslibs.timestamps.Timestamp'>]
+
+Column: SALE_TYPE
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: SELLER
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+White space: 1080 rows have whitespaces.
+
+Column: SELLER_TYPE
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: RETURN_POLICY_COMPLIANCE
+Mixed types: found 2 types: [<class 'NoneType'> <class 'str'>]
+
+Column: CASH_PRICE
+Outliers: 431 potential outliers are 3 stadard dev. away
+
+Column: LOAN_PRICE
+Outliers: 448 potential outliers are 3 stadard dev. away
+
+Column: CLIENT_MODEL
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: BUSINESS_MODEL
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: LOAN_TERM
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: PRODUCT_NAME
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: MODEL
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: Loan Id
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+------------------------- ENDS -------------------------
+```
+<br>
+
 #### Credit Data
 ```bash
 ------------------------- Profiling Summary for: merged_credit_data -------------------------
@@ -152,6 +246,8 @@ min        0.000000  -20499.000000      3099.000000  -81294.000000  ...      0.0
 75%      440.000000   49342.250000     67819.000000   51652.500000  ...      0.000000            0.000000   13049.000000                     49809.000000
 max     1056.000000  222159.000000    334219.000000  205019.000000  ...  86870.000000        91254.000000  131999.000000                    222159.000000
 ```
+<br>
+
 ```bash
 ------------------------- Descriptive Summary for: merged_credit_data -------------------------
 <class 'pandas.core.frame.DataFrame'>
@@ -196,8 +292,9 @@ dtypes: float64(13), int64(9), object(11)
 memory usage: 18.0+ MB
 None
 ```
-```bash
+<br>
 
+```bash
 --------------------------------------------------
 Missing values report for merged_credit_data table
 --------------------------------------------------
@@ -237,6 +334,148 @@ INITIAL_PAY                                   0            0.00
 TOTAL_PAID_WITH_ADJUSTMENTS_15D               0            0.00
 Total Rows: 71456
 ```
+<br>
+
+```bash
+--------------------------------------------------
+Duplicate analysis for merged_credit_data table
+--------------------------------------------------
+Total Rows: 71456
+Entire Duplicate Rows: 0
+                         Column  Unique Values  No Duplicates  Has Duplicates
+                        LOAN_ID          20742          50714            True
+                           DATE              5          71451            True
+                   CUSTOMER_AGE            964          70492            True
+                     TOTAL_PAID          11106          60350            True
+                TOTAL_DUE_TODAY           5569          65887            True
+                        BALANCE          10383          61073            True
+                  DAYS_PAST_DUE            898          70558            True
+                CLOSING_BALANCE           8793          62663            True
+                        ADVANCE           2121          69335            True
+            BALANCE_DUE_TO_DATE          11025          60431            True
+                        ARREARS           8905          62551            True
+             BALANCE_DUE_STATUS              3          71453            True
+                        PAYMENT            472          70984            True
+               EXPECTED_PAYMENT            294          71162            True
+                  FIRST_PAYMENT              2          71454            True
+         FIRST_EXPECTED_PAYMENT              2          71454            True
+              ACCOUNT_STATUS_L1             20          71436            True
+              ACCOUNT_STATUS_L2              9          71447            True
+                    RETURN_DATE            505          70951            True
+                      SALE_DATE            939          70517            True
+              CREDIT_CHECK_DONE              4          71452            True
+                 PAYMENT_AMOUNT            461          70995            True
+              ADJUSTMENT_AMOUNT             17          71439            True
+              PREPAYMENT_AMOUNT             26          71430            True
+                        DEPOSIT            602          70854            True
+                    WEEKLY_RATE            307          71149            True
+                  CREDIT_EXPIRY           1051          70405            True
+              NEXT_INVOICE_DATE             35          71421            True
+                       DISCOUNT            584          70872            True
+             OVERPAYMENT_AMOUNT            231          71225            True
+               MAX_PAYMENT_DATE            909          70547            True
+                    INITIAL_PAY            947          70509            True
+TOTAL_PAID_WITH_ADJUSTMENTS_15D          10921          60535            True
+------------------------- ENDS -------------------------
+```
+<br>
+
+```bash
+--------------------------------------------------
+Data inconsistency analysis for merged_credit_data table
+--------------------------------------------------
+
+Column: CUSTOMER_AGE
+Outliers: 169 potential outliers are 3 stadard dev. away
+Zeros: 109 rows contain the value 0.
+
+Column: TOTAL_PAID
+Outliers: 1069 potential outliers are 3 stadard dev. away
+Zeros: 778 rows contain the value 0.
+
+Column: TOTAL_DUE_TODAY
+Outliers: 1225 potential outliers are 3 stadard dev. away
+
+Column: BALANCE
+Outliers: 1015 potential outliers are 3 stadard dev. away
+Zeros: 15487 rows contain the value 0.
+
+Column: DAYS_PAST_DUE
+Outliers: 1276 potential outliers are 3 stadard dev. away
+Zeros: 39976 rows contain the value 0.
+
+Column: CLOSING_BALANCE
+Outliers: 985 potential outliers are 3 stadard dev. away
+Zeros: 24559 rows contain the value 0.
+
+Column: ADVANCE
+Outliers: 919 potential outliers are 3 stadard dev. away
+Zeros: 59364 rows contain the value 0.
+
+Column: BALANCE_DUE_TO_DATE
+Outliers: 1245 potential outliers are 3 stadard dev. away
+Zeros: 17726 rows contain the value 0.
+
+Column: ARREARS
+Outliers: 1275 potential outliers are 3 stadard dev. away
+Zeros: 29846 rows contain the value 0.
+
+Column: PAYMENT
+Outliers: 412 potential outliers are 3 stadard dev. away
+Zeros: 68297 rows contain the value 0.
+
+Column: EXPECTED_PAYMENT
+Outliers: 400 potential outliers are 3 stadard dev. away
+Zeros: 62550 rows contain the value 0.
+
+Column: FIRST_PAYMENT
+Outliers: 108 potential outliers are 3 stadard dev. away
+Zeros: 71348 rows contain the value 0.
+
+Column: FIRST_EXPECTED_PAYMENT
+Outliers: 109 potential outliers are 3 stadard dev. away
+Zeros: 71347 rows contain the value 0.
+
+Column: RETURN_DATE
+Mixed types: found 2 types: [<class 'NoneType'> <class 'str'>]
+
+Column: PAYMENT_AMOUNT
+Outliers: 51 potential outliers are 3 stadard dev. away
+Zeros: 19 rows contain the value 0.
+
+Column: ADJUSTMENT_AMOUNT
+Outliers: 17 potential outliers are 3 stadard dev. away
+Zeros: 3142 rows contain the value 0.
+
+Column: PREPAYMENT_AMOUNT
+Outliers: 88 potential outliers are 3 stadard dev. away
+Zeros: 71367 rows contain the value 0.
+
+Column: DEPOSIT
+Outliers: 2237 potential outliers are 3 stadard dev. away
+
+Column: WEEKLY_RATE
+Outliers: 792 potential outliers are 3 stadard dev. away
+
+Column: DISCOUNT
+Outliers: 1064 potential outliers are 3 stadard dev. away
+Zeros: 65289 rows contain the value 0.
+
+Column: OVERPAYMENT_AMOUNT
+Outliers: 183 potential outliers are 3 stadard dev. away
+Zeros: 69841 rows contain the value 0.
+
+Column: MAX_PAYMENT_DATE
+Mixed types: found 2 types: [<class 'str'> <class 'NoneType'>]
+
+Column: INITIAL_PAY
+Outliers: 1881 potential outliers are 3 stadard dev. away
+Zeros: 8 rows contain the value 0.
+
+Column: TOTAL_PAID_WITH_ADJUSTMENTS_15D
+Outliers: 1069 potential outliers are 3 stadard dev. away
+Zeros: 1692 rows contain the value 0.
+```
 ## 2. Data Cleaning
 ### 2.1 Column names
 All column names in the dataset are set to lowercase. From experience, this makes writing sql queries and transformation logic in warehouses for modularity easier.
@@ -249,7 +488,7 @@ The `"_".join(col.lower().split())` used in the cleaning script ensures multiple
 
 Sample output
 ```bash
--------------------------------------------------- DataFrame: sales_and_customer_data --------------------------------------------------
+-------------------------------------------------- DataFrame: sales_and_customer_data ------------------------------------
 Columns (16): ['sale_id', 'sale_date', 'returned', 'return_date', 'sale_type', 'seller', 'seller_type', 'return_policy_compliance', 'cash_price', 'loan_price', 'client_model', 'business_model', 'loan_term', 'product_name', 'model', 'loan_id']
 
 -------------------------------------------------- DataFrame: nps_data --------------------------------------------------
@@ -268,7 +507,7 @@ Table: sales_and_customer_data | Removed 1027827 duplicate rows.
 Table: nps_data | Removed 0 duplicate rows.
 Table: credit_data_definitions | Removed 0 duplicate rows.
 Table: merged_credit_data | Removed 0 duplicate rows.
-__________________________________________________ Exact row duplicates removed ----------------------------------------
+-------------------------------------------------- Exact row duplicates removed ----------------------------------------
 
 --------------------------------------------------
 Duplicate analysis for sales_and_customer_data table

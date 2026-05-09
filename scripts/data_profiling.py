@@ -58,7 +58,7 @@ def ingest_data():
                 credit_frames.append(temporary_df)
             
             #process the definitions excel separately
-            elif file == 'Credit Data Definitions.xlsx':
+            elif file.endswith('.xlsx') or file.endswith('.xls'):
                 print(f"Uploading: {table_name}...")
                 df_definitions = pd.read_excel(file_path)
                 df_definitions.to_sql('credit_data_definitions', engine, if_exists='replace', index=False)
@@ -229,10 +229,10 @@ def check_inconsistency(dataframes):
             print(f"\n{'-'*25} ENDS {'-'*25}")
 
 if __name__ == "__main__":
-    # pass #uncomment the lines below and comment out this one to run the function calls
+    pass #uncomment the lines below and comment out this one to run the function calls
     # ingest_data()
     # statistical_overview(raw_database_df)
     # identify_duplicates(raw_database_df)
     # check_inconsistency(raw_database_df)
     # df_value_counts(raw_database_df)
-    df_nulls(raw_database_df)
+    # df_nulls(raw_database_df)
