@@ -28,7 +28,7 @@ resultant tables.
 3. Excel data needed for analysis are in `sheet1` as import always ignores other sheets in the workbook. Other data sheets will be factored for indepth engineering in production mode.
 4. Only Excel type files will be ingested (.csv,.xlsx,.xls)
 5. For `Credit Data`, they will be in a separate folder as `.csv` and possibly include an accompanying definitons file as `.xlsx` or `.xlx`.
-6. The data cleaning script only runs once a day since it uses ***current date*** as part of file name for easy identification. This batch processing is good for aggregated data. At the moment running the pipeline twice will **SKIP** for a file that has already been processed. Running the file more than once in a day would ***normally** overwrite existing data which is the default behaviour of the `.to_csv` function. Passing `mode='a'` would append new rows at the bottom of the file. This defeats the cleaning step of removing exact row duplicates already applied if such duplicates exist in the appended data. IT would need to be called again on the new dataset. If the appending behaviour is desirable, e.g. in case new urgent information comes in, I have added an environment variable `RUN_PIPELINE_ONCE_A_DAY` that can be toggled to achieve this.
+6. The data cleaning script only runs once a day since it uses ***current date*** as part of file name for easy identification. This batch processing is good for aggregated data. At the moment running the **cleaning pipeline** twice will **SKIP** for a file that has already been processed. Running the cleaning script more than once in a day would **normally** overwrite existing data which is the default behaviour of the `.to_csv` function. Passing `mode='a'` would append new rows at the bottom of the file. This defeats the cleaning step of removing exact row duplicates already applied. If such duplicates exist in the appended data, the removing duplicates function would need to be called again on the new dataset. If the appending behaviour is desirable, e.g. in case new urgent information comes in, I have added an environment variable `RUN_PIPELINE_ONCE_A_DAY` that can be toggled to achieve this.
 
 ```
 root folder
@@ -45,10 +45,9 @@ root folder
 
 ## Setup
 1. Clone the repo using `git clone https://github.com/odhiambokevin/Annex_DE_Odhiambo.git`
-2. Setup a virtual environment to install the python dependencies. UV with python version 3.12.3 is used.
-3. Install the dependencies in the requirements.txt file. UV is used in this case `uv pip install -r requirements.txt`. To install UV check out this [link](https://docs.astral.sh/uv/getting-started/installation/)
-4. Have a .env file that reads the environment variables that facilitate database connection.
-5. Ensure to install the `ydata_profiling` package in your environemnt. Refer [here](https://docs.profiling.ydata.ai/latest/getting-started/installation/)
+2. Setup a virtual environment using an environment manager of your choice to install the project dependencies in the `requirements.txt` file. UV with python version 3.12.3 is used here.
+To install, using UV check out this [link](https://docs.astral.sh/uv/getting-started/installation/)
+4. Create an .env file that reads the project environment variables. Refer to the `.env.examples` file.
 
 The BASE_DIR variable is used to set the root folder location using the `os module` as in `scripts/data_profiling.py`
 
