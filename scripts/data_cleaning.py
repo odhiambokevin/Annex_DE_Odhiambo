@@ -1,12 +1,31 @@
 import os
 from datetime import datetime
+from pathlib import Path
 from decouple import config
+from sqlalchemy import create_engine, inspect,text
 import pandas as pd
 from pandas import NaT
 import numpy as np
 from data_profiling import get_database_data,df_value_counts,df_nulls,check_inconsistency,identify_duplicates
 
 RUN_PIPELINE_ONCE_A_DAY = config('RUN_PIPELINE_ONCE_A_DAY', default=False, cast=bool)
+CLEAN_DATA_SCHEMA = config('CLEAN_DATA_SCHEMA')
+
+# to create an example subfolder use os.makedirs(BASE_DIR / 'example2', exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+#database connection string variables set from .env file
+DB_HOST = config('DB_HOST')
+DB_PORT = config('DB_PORT')
+DB_NAME = config('DB_NAME')
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
+
+#connect to and from database using sqlalchemy and psycopg2
+conn_string = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+engine = create_engine(conn_string)
+
+
 
 #renaming long column names and lowercase all columns (my personal preference to lowercase)
 def rename_df_cols(dataframes):
@@ -145,7 +164,7 @@ def change_data_types(dataframes):
     print("data type changes successful!")
     return uniform_datatypes_df
 
-def clean_data_pipeline():
+def clean_data_pipeline(engine):
     #get raw data from database
     raw_data = get_database_data()
 
@@ -161,29 +180,52 @@ def clean_data_pipeline():
         os.makedirs(output_dir)
         print(f"Created directory: {output_dir}")
     
-    current_date = datetime.now().strftime("%Y-%m-%d")
+    current_date = datetime.now().strftime("%Y-%m-%d") #to add as part of filename
 
-    print(f"\nSaving sample 100 rows of each table to {output_dir}...")
+    #i intend to save the final cleaned datasets to a new table in a different schema
+    target_schema = CLEAN_DATA_SCHEMA
+
+    with engine.connect() as conn:
+        #create the schema if it does not exist
+        conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {target_schema};"))
+        #ensure the schema is registered
+        conn.commit()
+    
+    print(f"\nSchema '{target_schema}' verified.")
+    
+    print(f"\nProcessing {len(final_cleaned_data)} tables...")
     for name, df in final_cleaned_data.items():
+        #save first to database
+        print(f"Uploading {name} to database -  schema: {target_schema}")
+        df.to_sql(
+            name=name, 
+            con=engine, 
+            schema=target_schema, 
+            if_exists='replace', # Or 'append' based on your preference
+            index=False
+        )
+
         filename = f"{name}_{current_date}_cleaned_summary.csv" #add current date as part of file for easy id
         output_path = os.path.join(output_dir, filename)
 
         if RUN_PIPELINE_ONCE_A_DAY: #mode to choose write behavior
             #skip this file if it already exists
             if os.path.exists(output_path):
-                print(f"Warning:'{filename}' already exists. Skipping file..")
+                print(f"Warning:'{filename}' already exists in output folder. Skipping file..\n")
                 continue
             #export first 100 rows for sample
+            print(f"\nSaving sample 100 rows of each table to {output_dir}...")
             df.head(100).to_csv(output_path, index=False)
-            print(f"Exported: {output_path}")
+            print(f"Exported: {output_path}\n")
         else:
             #mode='a' appends so new info does not overwrite file which is the default behaviour of .to_csv
             #first 100 only for demo. appended rows always go to the bottom and wont appear here due to 100 limit
+            print(f"\nSaving sample 100 rows of {name} table to {output_dir}...")
             df.head(100).to_csv(output_path, mode='a',header=False,index=False) #header false prevents getting headers from new files as part of data
-            print(f"Exported: {output_path}")
+            print(f"Exported: {output_path}\n")
 
     print("\nData cleaning completed successfully!")
     return final_cleaned_data
 
 if __name__ == "__main__":
-    clean_data_pipeline()
+    clean_data_pipeline(engine)
