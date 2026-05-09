@@ -25,7 +25,7 @@ DB_PASSWORD = config('DB_PASSWORD')
 conn_string = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 engine = create_engine(conn_string)
 
-
+raw_data = get_database_data()
 
 #renaming long column names and lowercase all columns (my personal preference to lowercase)
 def rename_df_cols(dataframes):
@@ -78,6 +78,8 @@ def rename_df_cols(dataframes):
         
     return renamed_df
 
+clean_cols = rename_df_cols(raw_data)
+
 #delete entire row duplicates
 def remove_exact_row_duplicate(dataframes):
     duplicates_removed_df= {}
@@ -99,6 +101,8 @@ def remove_exact_row_duplicate(dataframes):
         print(f"Table: {name} | Removed {dropped_duplicates_count} duplicate rows.")
     print(f"{'_'*50} Exact row duplicates removed successfully{'_'*50}\n")
     return duplicates_removed_df
+
+clean_dups = remove_exact_row_duplicate(clean_cols)
 
 def change_data_types(dataframes):
     uniform_datatypes_df = {}
@@ -164,6 +168,10 @@ def change_data_types(dataframes):
     print("data type changes successful!")
     return uniform_datatypes_df
 
+clean_data = change_data_types(clean_dups)
+
+print(f"\n\n\n Clean Null Check\n")
+check_nulls = df_nulls(clean_data)
 def clean_data_pipeline(engine):
     #get raw data from database
     raw_data = get_database_data()
@@ -227,5 +235,5 @@ def clean_data_pipeline(engine):
     print("\nData cleaning completed successfully!")
     return final_cleaned_data
 
-if __name__ == "__main__":
-    clean_data_pipeline(engine)
+# if __name__ == "__main__":
+#     clean_data_pipeline(engine)
