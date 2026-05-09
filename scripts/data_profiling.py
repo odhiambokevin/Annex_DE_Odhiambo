@@ -27,18 +27,36 @@ def ingest_data():
         for file in os.listdir(files_folder):
             file_path = os.path.join(files_folder, file)
             if os.path.isfile(file_path) and file.endswith(('.xlsx', '.xls', '.csv')): #to ignore folder in files_folder
-                table_name = file.replace('.xlsx', '').replace('csv', '').replace(' ', '_').replace("-", "_").lower()
-                print(f"Uploading: {table_name}...")
-                if file.endswith('.csv'): # read .csv files
-                    df = pd.read_csv(file_path)
-                    df = df.dropna(axis=1, how='all')
-                    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+                #a name without extension for naming the tables
+                base_name = os.path.splitext(file)[0].replace(' ', '_').replace("-", "_").lower()
+
+                if file.endswith('.csv'):
+                    #handle csvs
+                    df_dictionary = {base_name: pd.read_csv(file_path)}
                 else:
-                    df = pd.read_excel(file_path) #other excel file types
+                    #dictionary of workbook sheet names eg. {sheet_name: dataframe}
+                    df_dictionary = pd.read_excel(file_path, sheet_name=None)
+
+                for sheet_name, df in df_dictionary.items():
+                    #cleaning sheet name
+                    clean_sheet_name = str(sheet_name).replace(' ', '_').replace("-", "_").lower()
+                    
+                    #identifying workbooks with multiple worksheets
+                    if len(df_dictionary) > 1:
+                        table_name = f"{base_name}_{clean_sheet_name}"
+                        print(f"Uploading data for [{clean_sheet_name}] worksheet from [{base_name}] workbook ")
+                    else:
+                        table_name = base_name
+                        print(f"Uploading data for [{table_name}]")
+
+
+                    #clean the data
                     df = df.dropna(axis=1, how='all')
                     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-                df.to_sql(table_name, engine, if_exists='replace', index=False)
-                print(f"Uploaded: {table_name}")
+
+                    # Upload to SQL
+                    df.to_sql(table_name, engine, if_exists='replace', index=False)
+                    print(f"Created: {table_name} table\n")
             else:
                 print(f"{file} is either a directory or {file} file is not in allowed format")
                 print(f"...skipping\n")
