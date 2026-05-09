@@ -1,4 +1,10 @@
 data/
+
+#ignore all datasets in the output folder except the merged dataset that will be the sample dataset
+outputs/*.csv
+!outputs/*merged*.csv
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

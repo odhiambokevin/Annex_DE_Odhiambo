@@ -18,6 +18,7 @@ DB_PASSWORD = config('DB_PASSWORD')
 conn_string = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 engine = create_engine(conn_string)
 
+#get data from source and load into database
 def ingest_data():
     #Sales and Customer data and NPS data files
     files_folder = os.path.join(BASE_DIR / 'data' / 'staging')
@@ -75,7 +76,7 @@ def ingest_data():
         print("Credit Data folder does not exist")
 
 def get_database_data():
-    print("Getting data from database...")
+    print("Fetching data from database...")
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
 
     tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
@@ -102,8 +103,8 @@ def get_database_data():
 
 # -----------------------DATA PROFILING------------------------------------------------------------------
 
-#comment out this line to use any of the calls below. It retrieves data from databse
-raw_database_df = get_database_data()
+# #comment out this line to use any of the calls below. It retrieves data from databse
+# raw_database_df = get_database_data()
 
 #statistical overview of our data frames
 def statistical_overview(dataframes):

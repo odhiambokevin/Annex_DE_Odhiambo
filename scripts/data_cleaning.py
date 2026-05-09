@@ -1,13 +1,18 @@
+import os
+from datetime import datetime
+from decouple import config
 import pandas as pd
-from pandas import NaT,Timestamp
+from pandas import NaT
 import numpy as np
 from data_profiling import get_database_data,df_value_counts,df_nulls,check_inconsistency,identify_duplicates
+
+RUN_PIPELINE_ONCE_A_DAY = config('RUN_PIPELINE_ONCE_A_DAY', default=False, cast=bool)
 
 #renaming long column names and lowercase all columns (my personal preference to lowercase)
 def rename_df_cols(dataframes):
     renamed_df = {}
 
-    #renaming of only long columns names from nps_data
+    #renaming of only long columns names from nps_data/this needs to be configured manually after profiling to identify column names
     nps_mapping = {
     'Using a scale from': 'recommend_score',
     'What is the main reason for your': 'recommend_score_reason',
@@ -74,10 +79,7 @@ def remove_exact_row_duplicate(dataframes):
         
         print(f"Table: {name} | Removed {dropped_duplicates_count} duplicate rows.")
     print(f"{'_'*50} Exact row duplicates removed successfully{'_'*50}\n")
-    
     return duplicates_removed_df
-
-# duplicates_removed = remove_exact_row_duplicate(renamed_df)
 
 def change_data_types(dataframes):
     uniform_datatypes_df = {}
@@ -104,7 +106,7 @@ def change_data_types(dataframes):
 
                 print(f"Table [{name}] | Column [{col}]: changing types to {most_frequent_type.__name__}")
 
-                #I handle float exclusively since pandas sees empty cell as float(NaN) not accounting for coordinates,%s
+                #i handle float exclusively since pandas sees empty cell as float(NaN) not accounting for coordinates,%s
                 if most_frequent_type is float:
                     if temporary_df[col].count() == 0:
                         if len(real_types) > 1: #most frequent is float but all are empty but we have other real types
@@ -143,4 +145,45 @@ def change_data_types(dataframes):
     print("data type changes successful!")
     return uniform_datatypes_df
 
-# clean_data_types = change_data_types(duplicates_removed)
+def clean_data_pipeline():
+    #get raw data from database
+    raw_data = get_database_data()
+
+    print("\nData cleanig process started...")
+    #data cleaning function called sequentially
+    renamed_data = rename_df_cols(raw_data)
+    deduplicated_data = remove_exact_row_duplicate(renamed_data)
+    final_cleaned_data = change_data_types(deduplicated_data)
+    
+    #set output folder path
+    output_dir = os.path.join("..", "outputs")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created directory: {output_dir}")
+    
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
+    print(f"\nSaving sample 100 rows of each table to {output_dir}...")
+    for name, df in final_cleaned_data.items():
+        filename = f"{name}_{current_date}_cleaned_summary.csv" #add current date as part of file for easy id
+        output_path = os.path.join(output_dir, filename)
+
+        if RUN_PIPELINE_ONCE_A_DAY: #mode to choose write behavior
+            #skip this file if it already exists
+            if os.path.exists(output_path):
+                print(f"Warning:'{filename}' already exists. Skipping file..")
+                continue
+            #export first 100 rows for sample
+            df.head(100).to_csv(output_path, index=False)
+            print(f"Exported: {output_path}")
+        else:
+            #mode='a' appends so new info does not overwrite file which is the default behaviour of .to_csv
+            #first 100 only for demo. appended rows always go to the bottom and wont appear here due to 100 limit
+            df.head(100).to_csv(output_path, mode='a',header=False,index=False) #header false prevents getting headers from new files as part of data
+            print(f"Exported: {output_path}")
+
+    print("\nData cleaning completed successfully!")
+    return final_cleaned_data
+
+if __name__ == "__main__":
+    clean_data_pipeline()

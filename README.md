@@ -28,6 +28,7 @@ resultant tables.
 3. Excel data needed for analysis are in `sheet1` as import always ignores other sheets in the workbook. Other data sheets will be factored for indepth engineering in production mode.
 4. Only Excel type files will be ingested (.csv,.xlsx,.xls)
 5. For `Credit Data`, they will be in a separate folder as `.csv` and possibly include an accompanying definitons file as `.xlsx` or `.xlx`.
+6. The data cleaning script only runs once a day since it uses ***current date*** as part of file name for easy identification. This batch processing is good for aggregated data. At the moment running the pipeline twice will **SKIP** for a file that has already been processed. Running the file more than once in a day would ***normally** overwrite existing data which is the default behaviour of the `.to_csv` function. Passing `mode='a'` would append new rows at the bottom of the file. This defeats the cleaning step of removing exact row duplicates already applied if such duplicates exist in the appended data. IT would need to be called again on the new dataset. If the appending behaviour is desirable, e.g. in case new urgent information comes in, I have added an environment variable `RUN_PIPELINE_ONCE_A_DAY` that can be toggled to achieve this.
 
 ```
 root folder
