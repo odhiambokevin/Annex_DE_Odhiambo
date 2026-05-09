@@ -6,7 +6,7 @@ outputs/*.csv
 
 *.lock
 *.toml
-.-version
+.*-version
 
 
 # Byte-compiled / optimized / DLL files

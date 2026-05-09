@@ -5,8 +5,6 @@ by [Kevin Odhiambo](https://kevin.yaspi.tech)
 
 > [!Note]
 > This is a fictitious case study of a phone company, ABC Phones.
-> Fucntion calls are commented out at the end of data_profiling.py file. Uncomment and run as needed.
-> Call the function `ingest_data()` in the `scripts/data_profiling.py` once. Comment it out once database is populated.
 
 ## Introduction
 ABC Phones offers smartphones to customers through installment-based credit plans and manages these accounts throughout the repayment period. Customers make regular payments toward their outstanding balances, and credit decisions play a critical role in both portfolio performance and customer experience.
