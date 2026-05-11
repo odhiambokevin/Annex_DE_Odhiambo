@@ -180,3 +180,27 @@ arrears  days_past_due               account_status_l1 risk_category
 3      0.0              0                 Existing Active      Low Risk
 4  19210.0            117                       Write Off      Low Risk
 ```
+## Portfolio Analysis
+
+### Delinquency rate
+To make the pipeline scalable, we are loading whole cleaned data, and iterating through the dataframes to find the particular one that matches our criteria for calculating delinquency rate. In this case it is the `merged_credit_data` dataframe.
+
+```bash
+--------------------------------------------------
+   DELINQUENCY RATES REPORT   
+--------------------------------------------------
+merged_credit_data   : 44.06%
+--------------------------------------------------
+```
+### Loss rate
+To calculate loss rate, I looked for a column with `Write off` and the next best column to use ro calculate the loss rate. 
+            loss rate = write off / total portfolio
+`closing_balance` was used in this case.
+
+```bash
+--------------------------------------------------
+   LOSS RATE REPORT   
+--------------------------------------------------
+merged_credit_data        : 20.90%
+---------------------------------------------
+```
