@@ -3,7 +3,7 @@
 # ANNEX TECHNOLOGIES - Data Engineer Case Study
 by [Kevin Odhiambo](https://kevin.yaspi.tech)
 
-> [!Note]
+> **Note:**
 > This is a fictitious case study of a phone company, ABC Phones.
 
 ## Introduction
@@ -217,3 +217,28 @@ merged_credit_data        : 42.35%
 --------------------------------------------------
 ```
 ### Customer retention rate
+To calculate for customer retention rate, we need to know total customers that joined and the ones that have left. Getting the difference and dividing this by total customers and then multiplying by 100 will give us the customer retention rate.
+
+`customer RR = (total joined - those left)/total joined * 100
+
+I check for values that might imply the customer left or in no longer tenable eg `Write Off', 'Return', 'Cancelled', 'FPD', 'Blocked'`. These are then subtracted from total unique customers and the rate calculated as defined.
+
+From the below we can see that `blocked` customers significantly lower the company's customer retention rate.
+
+Without blocked status
+```bash
+__________________________________________________
+   CUSTOMER RETENTION REPORT   
+__________________________________________________
+merged_credit_data        : 86.11%
+--------------------------------------------------
+```
+
+With blocked status
+```bash
+   CUSTOMER RETENTION REPORT   
+__________________________________________________
+merged_credit_data        : 69.57%
+--------------------------------------------------
+
+```

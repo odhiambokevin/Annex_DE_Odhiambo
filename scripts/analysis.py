@@ -113,17 +113,14 @@ def payment_collection_rate(dataframes):
 
 
 def customer_retention_rate(dataframes):
-    """
-    Calculates the percentage of customers who are NOT written off or returned.
-    """
-    print("=" * 45)
-    print(f"{'CUSTOMER RETENTION REPORT':^45}")
-    print("=" * 45)
+    print("_" * 50)
+    print("   CUSTOMER RETENTION REPORT   ")
+    print("_" * 50)
 
     retention_results = {}
 
-    # Define what we consider "Lost" or "Churned" based on your CSV values
-    churn_statuses = ['Write off', 'Return', 'Cancelled', 'FPD']
+    #values for which we consider customer might have left
+    churn_statuses = ['Write Off', 'Return', 'Cancelled', 'FPD', 'Blocked']
 
     for name, df in dataframes.items():
         if 'merged_credit' in name:
@@ -134,8 +131,7 @@ def customer_retention_rate(dataframes):
                 if total_customers == 0:
                     rate_str = "0.00%"
                 else:
-                    # Identify customers who haven't churned
-                    # We check both status levels for any churn indicators
+                    #we get customers who have not left by reversing from the number of those who have left
                     churned_mask = (
                         df['account_status_l1'].isin(churn_statuses) | 
                         df['account_status_l2'].isin(churn_statuses)
@@ -148,10 +144,7 @@ def customer_retention_rate(dataframes):
                 retention_results[name] = rate_str
                 print(f"{name:<25} : {rate_str}")
             else:
-                print(f"{name:<25} : Missing Status Columns")
+                print(f"{name:<25} : Missing Needed Columns for Calculation")
 
-    print("-" * 45)
+    print("-" * 50)
     return retention_results
-
-data = clean_df
-final_results = customer_retention_rate(data)
