@@ -154,7 +154,7 @@ def get_clean_db_data():
 # -----------------------DATA PROFILING------------------------------------------------------------------
 
 # #comment out this line to use any of the calls below. It retrieves data from databse
-# raw_database_df = get_database_data()
+raw_database_df = get_database_data()
 
 #statistical overview of our data frames
 def statistical_overview(dataframes):
@@ -281,9 +281,9 @@ def check_inconsistency(dataframes):
 
 if __name__ == "__main__":
     # pass #uncomment the lines below and comment out this one to run the function calls
-    ingest_data()
-    # statistical_overview(raw_database_df)
-    # identify_duplicates(raw_database_df)
-    # check_inconsistency(raw_database_df)
-    # df_value_counts(raw_database_df)
-    # df_nulls(raw_database_df)
+    # ingest_data()
+    statistical_overview(raw_database_df)
+    identify_duplicates(raw_database_df)
+    check_inconsistency(raw_database_df)
+    df_value_counts(raw_database_df)
+    df_nulls(raw_database_df)

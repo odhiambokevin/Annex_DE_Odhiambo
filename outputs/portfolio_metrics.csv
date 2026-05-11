@@ -1,0 +1,7 @@
+,ABC Phone Portfolio Metrics,,
+,,,
+,,Percentage,Dataset
+,Delinquency Rate,44.06,merged_credit_data
+,Loss Rate,20.9,merged_credit_data
+,Collection Rate,42.35,merged_credit_data
+,Retention Rate,86.11,merged_credit_data
