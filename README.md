@@ -204,3 +204,16 @@ To calculate loss rate, I looked for a column with `Write off` and the next best
 merged_credit_data        : 20.90%
 ---------------------------------------------
 ```
+### Payment collection rate
+To calculate for the payment collection rate we get what is actually being collected versus what is due for payment. The columns in our datasets that perform this are `payment_amount` and  `expected_payment`.
+
+```Collection rate = (payment_amount / expected_payment) * 100```
+
+```bash
+--------------------------------------------------
+   PAYMENT COLLECTION REPORT   
+--------------------------------------------------
+merged_credit_data        : 42.35%
+--------------------------------------------------
+```
+### Customer retention rate

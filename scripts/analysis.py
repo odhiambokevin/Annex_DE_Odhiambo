@@ -79,3 +79,34 @@ def loss_rate(dataframes):
 
     print("-" * 45)
     return loss_results
+
+def payment_collection_rate(dataframes):
+    print("-" * 50)
+    print("   PAYMENT COLLECTION REPORT   ")
+    print("-" * 50)
+
+    collection_results = {}
+
+    for name, df in dataframes.items():
+        if 'merged_credit' in name:
+            #confirm the columns needed for calculations exist
+            if 'payment_amount' in df.columns and 'expected_payment' in df.columns:
+                
+                total_actual = df['payment_amount'].fillna(0).sum()
+                total_expected = df['expected_payment'].fillna(0).sum()
+                
+                if total_expected > 0:
+                    rate = (total_actual / total_expected) * 100
+                else:
+                    #we didn't expect anything from a particualar account
+                    rate = 0.00
+                
+                formatted_rate = f"{rate:.2f}%"
+                collection_results[name] = formatted_rate
+                
+                print(f"{name:<25} : {formatted_rate}")
+            else:
+                print(f"{name:<25} : Column Error (no columns availab;e for calculation)")
+
+    print("-" * 50)
+    return collection_results
