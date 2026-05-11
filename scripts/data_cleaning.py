@@ -235,5 +235,5 @@ def clean_data_pipeline(engine):
     print("\nData cleaning completed successfully!")
     return final_cleaned_data
 
-# if __name__ == "__main__":
-#     clean_data_pipeline(engine)
+if __name__ == "__main__":
+    clean_data_pipeline(engine)

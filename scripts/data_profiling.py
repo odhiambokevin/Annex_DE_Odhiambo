@@ -7,6 +7,10 @@ from sqlalchemy import create_engine, inspect
 # to create an example subfolder use os.makedirs(BASE_DIR / 'example2', exist_ok=True)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#the schemas for raw and clean data
+CLEAN_DATA_SCHEMA = config('CLEAN_DATA_SCHEMA')
+RAW_DATA_SCHEMA = config('RAW_DATA_SCHEMA')
+
 #database connection string variables set from .env file
 DB_HOST = config('DB_HOST')
 DB_PORT = config('DB_PORT')
@@ -94,10 +98,11 @@ def ingest_data():
         print("Credit Data folder does not exist")
 
 def get_database_data():
+    raw_data_schema = RAW_DATA_SCHEMA
     print("Fetching data from database...")
     inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
 
-    tables_ns = inspector.get_table_names(schema='public') #table name space we can limit schema access here as necessary for security
+    tables_ns = inspector.get_table_names(schema=raw_data_schema) #table name space we can limit schema access here as necessary for security
     #tables_ns = ["merged_credit_data", "sales",] we can filter specific tables like this to use less memory
     # tables_ns = ["merged_credit_data"] only for development to speed up testing
     
@@ -109,7 +114,34 @@ def get_database_data():
         for table in tables_ns:
             print(f"Loading {table}...")
             #we load individual tables to our data frame dictionary
-            dataframes[table] = pd.read_sql_table(table, engine, schema='public')
+            dataframes[table] = pd.read_sql_table(table, engine, schema=raw_data_schema)
+            
+        return dataframes
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+    finally:
+        engine.dispose() #we close all database connections
+
+def get_clean_db_data():
+    clean_data_schema = CLEAN_DATA_SCHEMA
+    print("Fetching data from database...")
+    inspector = inspect(engine) # to query the database in case we are not sure of exact table names in db
+
+    tables_ns = inspector.get_table_names(schema=clean_data_schema) #table name space we can limit schema access here as necessary for security
+    #tables_ns = ["merged_credit_data", "sales",] we can filter specific tables like this to use less memory
+    # tables_ns = ["merged_credit_data"] only for development to speed up testing
+    
+    dataframes = {} #this will hold our converted tables as data frames
+
+    print(f"{len(tables_ns)} tables found - tables: {tables_ns}")
+
+    try:
+        for table in tables_ns:
+            print(f"Loading {table}...")
+            #we load individual tables to our data frame dictionary
+            dataframes[table] = pd.read_sql_table(table, engine, schema=clean_data_schema)
             
         return dataframes
     

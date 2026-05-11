@@ -61,3 +61,44 @@ flowchart TD
     B --> C[3.Data Types Changed]
     C --> D[4.Output Sample CSV]
 ```
+## Quality Checks
+For the data quality check the following checks are run:
+
+### 1. Null Checks
+The script for the null checks is not generic and is designed after a careful examination of the data. The script defines specific null thresholds for specific files derived from the cleaned data. Certain tables/dataframes **cannot** have their null thresholds exceeded and if they do then the pipeline **stops**. This means that particular tables/file/dataframe did not meet its threshold and since it is a critical file, it is not processed at all. It raises the need for further cleaning or examination. An email alert is then sent to the admin(or defined recipients).
+
+For other files whose data is not as sensitive but we still want to see extreme null thresholds exceeded, the pipleine just alerts the admin via email when their null thresholds are exceeded but and the pipeline continues processing thw whole file.
+
+> [!Note]
+> It will need internal policy to determine which columns are more data sensitive than others.
+
+For this demonstration the following rules have been defined.
+
+The `'loan_price'` field in the worksheet `sales_details` in the `sales_and_customer_data` workbook should have nulls less than 0. The current value of 3 missing values transalting to 0.01% should stop the entire pipeline with the `stop_pipeline` set to `True`. But for the `'adjustment_amount '` in the `merged_credit_data` table the threshold set is 30%. So the current 95.97% will send an alert but will not stop the pipeline.
+
+This is achieved because we set whether we want the pipeline to stop or not with the `stop_pipeline` dictionary that accepts boolean values.
+
+sample output
+```bash
+qualityCheckLogger: 2026-05-11 10:02:37,240 INFO: - Starting Quality Check for: sales_and_customer_data_sales_details
+qualityCheckLogger: 2026-05-11 10:02:37,240 CRITICAL: - [CRITICAL FAILURE - STOPPING PIPELINE] Threshold Violated in 'sales_and_customer_data_sales_details'! Column 'loan_price' has 0.01% nulls (Limit: 0.00%)
+qualityCheckLogger: 2026-05-11 10:02:40,910 INFO: - Starting Quality Check for: merged_credit_data
+qualityCheckLogger: 2026-05-11 10:02:40,911 ERROR: - [WARNING] Threshold Violated in 'merged_credit_data'! Column 'adjustment_amount' has 95.57% nulls (Limit: 30.00%)
+```
+Email output
+```bash
+    Loger: qualityCheckLogger
+    Time: 2026-05-11 10:02:40,911
+    Module: quality_checks
+    Line: 91
+    Message: [WARNING] Threshold Violated in 'merged_credit_data'! Column 'adjustment_amount' has 95.57% nulls (Limit: 30.00%)
+```
+
+```
+    Loger: qualityCheckLogger
+    Time: 2026-05-11 10:02:37,240
+    Module: quality_checks
+    Line: 88
+    Message: [CRITICAL FAILURE - STOPPING PIPELINE] Threshold Violated in 'sales_and_customer_data_sales_details'! Column 'loan_price' has 0.01% nulls (Limit: 0.00%)
+```
+For example, in the 
