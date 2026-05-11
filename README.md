@@ -142,3 +142,25 @@ A brief view of this data shows ages well out of acceptable range.
  recdt7CH6uRxc5nW6 |            6
 ```
 The pipeline does not stop. Relevant admins are notified and this could be a mismatch of column names.
+
+## Feature Engineering
+In production, feature engineering will be done from cleaned datasets and the results stored in intermediate schema. This is the schema that analysts will have access to since all the data here have passed all qaulity checks and have been feauture engineered. I other words, the output of the `feature_engineering.py` will be uploaded to an `intermediate` schema.
+The `calculate_age_band` function takes in the cleaned data, loops through each on of them and if it finds in any of them a field called 'date_of_birth', it uses it to calculate the age band for that particular record.
+
+sample output
+```bash
+            date_of_birth            loan_id             createdat_utc   age    age_band
+ 1992-01-15T00:00:00+03:00  recB62iDqCzZRSLvJ  2025-03-03T12:12:02.196Z  34.0    26–35
+ 2002-04-13T00:00:00+03:00  recYkhiMo3z86wqq8  2025-03-03T12:12:02.967Z  24.0    18–25
+ 1991-05-17T00:00:00+03:00  recVJkba3KsQiPdQ0  2025-03-03T10:32:05.687Z  34.0    26–35
+ 1969-01-01T00:00:00+03:00               None  2025-03-03T10:32:06.385Z  57.0      55+
+       2003-12-31 00:00:00               None  2025-12-31T09:30:47.083Z  22.0    18–25
+       1988-02-12 00:00:00               None  2025-12-31T09:33:49.212Z  38.0    36–45
+       1990-07-08 00:00:00               None  2025-12-31T09:38:42.418Z  35.0    26–35
+       2000-04-07 00:00:00               None  2025-12-31T09:38:43.339Z  26.0    26–35
+       1993-12-28 00:00:00               None  2025-12-31T09:39:38.340Z  32.0    26–35
+```
+### age_band
+### avg_monthly_income_band
+### days_past_due
+### risk_category
