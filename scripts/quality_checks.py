@@ -1,7 +1,8 @@
+import sys
 import logging
 from logging.handlers import SMTPHandler
-import sys
 from pathlib import Path
+from datetime import datetime
 import pandas as pd
 from decouple import config,Csv
 from data_profiling import get_clean_db_data
@@ -56,55 +57,103 @@ def setup_email_alert(logger, admin_email):
 
 setup_email_alert(logger, ADMIN_EMAIL)
 
-def data_quality_check(dataframes, thresholds):
-    for df_name, df in dataframes.items():
-        if df_name not in thresholds:
+def check_nulls(df, df_name, rules):
+    for column, rule in rules.items():
+        if column not in df.columns:
+            logger.warning(f"Column '{column}' not found in {df_name}")
             continue
             
-        logger.info(f"Starting Quality Check for: {df_name}")
+        null_percentage = df[column].isnull().mean() * 100
+        limit = rule['limit']
         
-        #load the rules for the dataframe in the iteration
-        df_rules = thresholds[df_name]
-        
-        for column, rule in df_rules.items():
-            if column not in df.columns:
-                logger.warning(f"Column {column} not found in {df_name}")
-                continue
+        if null_percentage > limit:
+            should_stop = rule.get('stop_pipeline', False)
+            status_msg = "CRITICAL FAILURE" if should_stop else "WARNING"
+            error_msg = (
+                f"[{status_msg}] Null Threshold Violated in '{df_name}'!\n"
+                f"Column '{column}' has {null_percentage:.2f}% nulls (Limit: {limit:.2f}%)"
+            )
             
-            #get the null percentage
-            null_percentage = df[column].isnull().mean() * 100 #becaue .mean() returns a value between 0 and 1
-            limit = rule['limit']
-            
-            if null_percentage > limit:
-                should_stop = rule.get('stop_pipeline', False)
-
-                status_msg = "CRITICAL FAILURE - STOPPING PIPELINE!" if should_stop else "WARNING"
-                error_msg = (
-                    f"[{status_msg}] Null Threshold Violated in '{df_name}'! "
-                    f"Column '{column}' has {null_percentage:.2f}% nulls (Limit: {limit:.2f}%)"
-                )
-
-                if should_stop: #stop_pipeline evaluates to True
-                    logger.critical(error_msg)
-                    break #stop processing this dataframe entirely
-                else:#process the dataframe but still alert the admin of exceeded threshold
-                    logger.error(error_msg)
-
+            if should_stop:
+                logger.critical(error_msg)
+                return False #stop processing this dataframe entirely
             else:
-                logger.info(f"Column '{column}' passed ({null_percentage:.2f}%)")
+                logger.error(error_msg)
+                
+    return True
+
+def check_ranges(df, df_name, rules):
+    for column, rule in rules.items():
+        if column not in df.columns:
+            logger.warning(f"Column '{column}' not found in {df_name}")
+            continue
+
+        if 'age_range' in rule:
+            min_age, max_age = rule['age_range'] #get the min and max ranges for age
+
+            #values outside set threshold
+            out_of_range_values = (df[column] < min_age) | (df[column] > max_age)
+            violation_count = out_of_range_values.sum()
+
+            if violation_count > 0:
+                #percentage of values outside range
+                violation_percent = (violation_count / len(df)) * 100
+                should_stop = rule.get('stop_pipeline', False) #deaults to False
+                status_msg = "CRITICAL FAILURE" if should_stop else "WARNING"
+                
+                error_msg = (
+                    f"[{status_msg}] Range Violation in '{df_name}'!\n"
+                    f"Column '{column}' has {violation_count} records ({violation_percent:.2f}%) "
+                    f"outside allowed range [{min_age}-{max_age}]."
+                )
+                if should_stop:
+                    logger.critical(error_msg)
+                    return False
+                else:
+                    logger.error(error_msg)
+    return True
+
+def data_quality_check(dataframes, check_rules):
+    #ignore if the dataframe  is not in rule check
+    for df_name, df in dataframes.items():
+        if df_name not in check_rules:
+            continue
+            
+        logger.info(f"\nStarting Quality Check for: {df_name}")
+        rules = check_rules[df_name]
+
+        #check if dataframe qualifies for null checks
+        if 'null_checks' in rules:
+            passed_nulls = check_nulls(df, df_name, rules['null_checks'])
+            if not passed_nulls: #should_stop has evaluated to True
+                logger.warning(f"Skipping remaining checks for '{df_name}' due to critical null failure.\n")
+                continue  #this moves to process next dataframe for nulls
+
+        #check if dataframe qualifies for range check
+        if 'range_checks' in rules:
+            check_ranges(df, df_name, rules['range_checks'])
+
 if __name__ == '__main__':
      #get the data
     clean_dfs = get_clean_db_data()
 
-    #threshold limit for specific defined columns
+    #quality check rules for tables/datframes and specific columns
     check_rules = {
         'merged_credit_data': {
-            'adjustment_amount': {'limit': 30.00, 'stop_pipeline': False}
+            'null_checks': {
+                'adjustment_amount': {'limit': 30.00, 'stop_pipeline': False}
+            },
+            'range_checks': {
+                'customer_age': {'age_range': (18, 90)}
+            }
         },
         'sales_and_customer_data_sales_details': {
-            'loan_price': {'limit': 0.00, 'stop_pipeline': True}
-        }
+            'null_checks': {
+                'loan_price': {'limit': 0.00, 'stop_pipeline': True}
+            }
+        },
     }
+
 
     #run the quality check pipeline
     data_quality_check(clean_dfs, check_rules)

@@ -14,9 +14,9 @@ While ABC Phones has systems to process payments and manage accounts, their data
 This is a scalable codebase that addresses their current challenges.
 
 ## ELT
-The pipeline uses an ELT approach and loads all the data from source into our `postgres` warehouse. We don't even need to know the specific files in the datasets. It loads everything from the source destination.
+The pipeline uses an ELT approach and loads all the data from source into our `postgres` warehouse. Users don't even need to know the specific files in the datasets. It loads everything from the source destination.
 
-The good thing with this approach is that we don\'t need to even create any tables beforehand. We just need to have a database that exists.
+The good thing with this approach is that users don\'t need to even create any tables beforehand. But the database has to exist.
 
 ## Assumptions
 The following assumptions are made for this project.
@@ -62,12 +62,18 @@ flowchart TD
     C --> D[4.Output Sample CSV]
 ```
 ## Quality Checks
+The data quality check is run in a script `quality_checks.py`. All the dataframes/tables/file are loaded and data-specific rules are applied. The script iterates through all the data and finds if any of the data files qualify for any of their specific columns to go through a quality check.
+
+This helps in optimization of `compute` since only business specific rules are checked against avoiding the need to run the check all through all columns as this may be expensive in production and at scale.
+
+Rules defined in the `quality_checks.py` are arbitrary and demonstration only. I can modify them to respond to business intelligence needs.
+
 For the data quality check the following checks are run:
 
 ### 1. Null Checks
 The script for the null checks is not generic and is designed after a careful examination of the data. The script defines specific null thresholds for specific files derived from the cleaned data. Certain tables/dataframes **cannot** have their null thresholds exceeded and if they do then the pipeline **stops**. This means that particular tables/file/dataframe did not meet its threshold and since it is a critical file, it is not processed at all. It raises the need for further cleaning or examination. An email alert is then sent to the admin(or defined recipients).
 
-For other files whose data is not as sensitive but we still want to see extreme null thresholds exceeded, the pipleine just alerts the admin via email when their null thresholds are exceeded but and the pipeline continues processing thw whole file.
+For other files whose data is not as sensitive but there is need to see extreme null thresholds exceeded, the pipleine just alerts the admin via email when their null thresholds are exceeded but and the pipeline continues processing thw whole file.
 
 > [!Note]
 > It will need internal policy to determine which columns are more data sensitive than others.
@@ -76,7 +82,7 @@ For this demonstration the following rules have been defined.
 
 The `'loan_price'` field in the worksheet `sales_details` in the `sales_and_customer_data` workbook should have nulls less than 0. The current value of 3 missing values transalting to 0.01% should stop the entire pipeline with the `stop_pipeline` set to `True`. But for the `'adjustment_amount '` in the `merged_credit_data` table the threshold set is 30%. So the current 95.97% will send an alert but will not stop the pipeline.
 
-This is achieved because we set whether we want the pipeline to stop or not with the `stop_pipeline` dictionary that accepts boolean values.
+This is achieved because I set whether I want the pipeline to stop or not with the `stop_pipeline` dictionary that accepts boolean values.
 
 sample output
 ```bash
@@ -101,4 +107,38 @@ Email output
     Line: 88
     Message: [CRITICAL FAILURE - STOPPING PIPELINE] Threshold Violated in 'sales_and_customer_data_sales_details'! Column 'loan_price' has 0.01% nulls (Limit: 0.00%)
 ```
-For example, in the 
+### 1. Range Checks
+I do a range check on the `customer_age` in the `merged_credit_data` to identify ages below 18 and above 90.
+We don't want the pipeline to stop for if this check is failed. We just need to see if there are conspicuous data that may need further examination.
+
+We see that `84.28` of our customers are either below 18 or above 90 and this calls for further investigation.
+log output terminal
+```bash
+qualityCheckLogger: 2026-05-11 12:53:18,620 ERROR: - [WARNING] Range Violation in 'merged_credit_data'!
+Column 'customer_age' has 60221 records (84.28%) outside allowed range [18-90].
+```
+sample email
+```bash
+ Loger: qualityCheckLogger
+    Time: 2026-05-11 12:53:18,620
+    Module: quality_checks
+    Line: 113
+    Message: [WARNING] Range Violation in 'merged_credit_data'!
+Column 'customer_age' has 60221 records (84.28%) outside allowed range [18-90].
+```
+A brief view of this data shows ages well out of acceptable range.
+
+```sql
+      loan_id      | customer_age 
+-------------------+--------------
+ recshsSkaJzHP663H |          246
+ rec3WeGAgR8E7ai5J |          233
+ recAvwoRHSCytDGyv |          572
+ recXY01XbbKZhLt42 |          104
+ reciFeQteqkuTsQnC |          285
+ recVM1aj5WpWXTn2A |          226
+ recwTquJZbvkaTCnL |          224
+ recfkxQ2DuCs5In34 |          240
+ recdt7CH6uRxc5nW6 |            6
+```
+The pipeline does not stop. Relevant admins are notified and this could be a mismatch of column names.
