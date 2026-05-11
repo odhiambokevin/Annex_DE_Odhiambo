@@ -27,3 +27,35 @@ def calculate_age_band(dataframes):
                 
     return dataframes
 
+def risk_category(dataframe):
+    #for arreas and days past due use their max and min values to segment the data
+    min_arrears, max_arrears = dataframe['arrears'].min(), dataframe['arrears'].max()
+    min_days_pd, max_days_pd = dataframe['days_past_due'].min(), dataframe['days_past_due'].max()
+
+    #calculate ranges
+    range_arr = max_arrears - min_arrears
+    range_days_pd = max_days_pd - min_days_pd
+
+    def classify(client):
+        #first payment default is high risk
+        if client['account_status_l1'] == 'First Payment Default':
+            return 'High Risk'
+        
+        # 2. Normalize values to a 0.0 - 1.0 scale
+        # (Current Value - Min) / Range
+        #
+        score_arrears = (client['arrears'] - min_arrears) / range_arr if range_arr > 0 else 0
+        score_days_pd = (client['days_past_due'] - min_days_pd) / range_days_pd if range_days_pd > 0 else 0
+        
+        #get highest risk factor in either column
+        final_score = max(score_arrears, score_days_pd)
+        
+        #classify based on score
+        if final_score > 0.66:   #top 33%
+            return 'High Risk'
+        elif final_score > 0.33:
+            return 'Medium Risk'
+        else:                   #bottom 33% of the range
+            return 'Low Risk'
+    dataframe['risk_category'] = dataframe.apply(classify, axis=1)
+    return dataframe

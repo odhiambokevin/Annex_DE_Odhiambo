@@ -111,7 +111,8 @@ Email output
 I do a range check on the `customer_age` in the `merged_credit_data` to identify ages below 18 and above 90.
 We don't want the pipeline to stop for if this check is failed. We just need to see if there are conspicuous data that may need further examination.
 
-We see that `84.28` of our customers are either below 18 or above 90 and this calls for further investigation.
+We see that `84.28%` of our customers are either below 18 or above 90 and this calls for further investigation. Further check reveals that customer_age is actually the number of days the customer has been with the company, that is number of days since loan sale date.
+
 log output terminal
 ```bash
 qualityCheckLogger: 2026-05-11 12:53:18,620 ERROR: - [WARNING] Range Violation in 'merged_credit_data'!
@@ -126,7 +127,7 @@ sample email
     Message: [WARNING] Range Violation in 'merged_credit_data'!
 Column 'customer_age' has 60221 records (84.28%) outside allowed range [18-90].
 ```
-A brief view of this data shows ages well out of acceptable range.
+A brief view of this data implies ages well out of acceptable range.
 
 ```sql
       loan_id      | customer_age 
@@ -164,3 +165,18 @@ sample output
 ### avg_monthly_income_band
 ### days_past_due
 ### risk_category
+For developing a risk score, the following sample columns from `merged_credit_data` was used. This is just for demonstration and in production a detailed multidepartment approach will be employed. Some of the definitions in `accounts_status_l1` are not clear so only obvious implications were used.
+
+- arrears - amount customer is behind
+- account_status_l1 - category of credit status
+- days past due - days customer is behind on payment
+
+sample output
+```bash
+arrears  days_past_due               account_status_l1 risk_category
+0  48279.0            239           First Payment Default     High Risk
+1  58199.0            149  Cancelled Returned past 3 mths      Low Risk
+2      0.0              0                   Paid Off Loan      Low Risk
+3      0.0              0                 Existing Active      Low Risk
+4  19210.0            117                       Write Off      Low Risk
+```
